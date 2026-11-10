@@ -1603,7 +1603,7 @@ sealed class App : ApplicationContext
                 { "messages", messages }
             };
 
-            string body = json.Serialize(request);
+            string body = PrepareRequest(json, request, messages);
             bool done = TryAllEndpoints(id, key, json, request, body);
             if (done) Post(delegate { OnDone(id, userMsg); });
         }
@@ -1622,6 +1622,95 @@ sealed class App : ApplicationContext
         {
             Program.Log("Request failed: " + ex);
             Post(delegate { OnError(id, ex.Message); });
+        }
+    }
+
+    const int RequestByteBudget = 4 * 1024 * 1024 - 16;
+    const string RequestSizeMessage = "Запрос превышает 4 МиБ. Выберите меньшую область экрана или сократите историю.";
+    const string JpegDataHeader = "data:image/jpeg;base64,";
+
+    static string PrepareRequest(JavaScriptSerializer json, Dictionary<string, object> request, List<object> messages)
+    {
+        string body = json.Serialize(request);
+        if (Encoding.UTF8.GetByteCount(body) <= RequestByteBudget) return body;
+
+        var prepared = new List<object>(messages.Count);
+        var imageURLs = new List<Dictionary<string, object>>();
+        var originalURLs = new List<string>();
+        foreach (Dictionary<string, object> message in messages)
+        {
+            object[] parts = message["content"] as object[];
+            if (parts == null)
+            {
+                prepared.Add(message);
+                continue;
+            }
+
+            object[] copies = (object[])parts.Clone();
+            for (int i = 0; i < copies.Length; i++)
+            {
+                var part = (Dictionary<string, object>)copies[i];
+                if (!part.ContainsKey("image_url")) continue;
+                var url = new Dictionary<string, object>((Dictionary<string, object>)part["image_url"]);
+                originalURLs.Add((string)url["url"]);
+                url["url"] = JpegDataHeader;
+                imageURLs.Add(url);
+                var copy = new Dictionary<string, object>(part);
+                copy["image_url"] = url;
+                copies[i] = copy;
+            }
+            prepared.Add(Msg((string)message["role"], copies));
+        }
+
+        if (imageURLs.Count == 0) throw new OpenAIException(RequestSizeMessage);
+        request["messages"] = prepared;
+        int available = RequestByteBudget - Encoding.UTF8.GetByteCount(json.Serialize(request));
+        int imageBudget = available / imageURLs.Count / 4 * 3;
+        if (imageBudget <= 0) throw new OpenAIException(RequestSizeMessage);
+
+        for (int i = 0; i < imageURLs.Count; i++)
+        {
+            string original = originalURLs[i];
+            string base64 = original.Substring(original.IndexOf(',') + 1);
+            byte[] image = Convert.FromBase64String(base64);
+            imageURLs[i]["url"] = image.Length <= imageBudget
+                ? original : JpegDataHeader + Convert.ToBase64String(CompactImage(image, imageBudget));
+        }
+
+        body = json.Serialize(request);
+        if (Encoding.UTF8.GetByteCount(body) > RequestByteBudget) throw new OpenAIException(RequestSizeMessage);
+        return body;
+    }
+
+    static byte[] CompactImage(byte[] data, int budget)
+    {
+        ImageCodecInfo jpeg = Array.Find(ImageCodecInfo.GetImageEncoders(),
+            delegate(ImageCodecInfo codec) { return codec.FormatID == ImageFormat.Jpeg.Guid; });
+        using (var input = new MemoryStream(data))
+        using (var image = Image.FromStream(input))
+        using (var options = new EncoderParameters(1))
+        {
+            options.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 88L);
+            int originalSize = Math.Max(image.Width, image.Height);
+            int size = originalSize;
+            while (true)
+            {
+                int width = Math.Max(1, image.Width * size / originalSize);
+                int height = Math.Max(1, image.Height * size / originalSize);
+                using (var scaled = new Bitmap(width, height, PixelFormat.Format24bppRgb))
+                using (var output = new MemoryStream())
+                {
+                    using (Graphics graphics = Graphics.FromImage(scaled))
+                    {
+                        graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        graphics.DrawImage(image, 0, 0, width, height);
+                    }
+                    scaled.Save(output, jpeg, options);
+                    if (output.Length <= budget) return output.ToArray();
+                }
+                if (size <= 256) throw new OpenAIException(RequestSizeMessage);
+                size = Math.Max(256, size * 3 / 4);
+            }
         }
     }
 
