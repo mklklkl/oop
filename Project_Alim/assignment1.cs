@@ -14,15 +14,13 @@ using System.Web.Script.Serialization;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
-
 [assembly: System.Runtime.Versioning.TargetFramework(".NETFramework,Version=v4.8")]
 #if FRIEND
-[assembly: System.Reflection.AssemblyTitle("Edge")]
-[assembly: System.Reflection.AssemblyProduct("Edge")]
+[assembly: System.Reflection.AssemblyTitle("Egde")]
+[assembly: System.Reflection.AssemblyProduct("Egde")]
 #endif
 
-static class Settings
-{
+static class Settings {
     public const string DefaultModel = "gpt-6-luna";
     public const string ReasoningEffort = "high";
     public const int TriggerXButton = 2;
@@ -33,7 +31,7 @@ static class Settings
     public const string FallbackUrl = "https://lms.ka1nyyyyy.workers.dev";
     public const string AccessToken = "";
 #if FRIEND
-    internal const string AssistantName = "Edge";
+    internal const string AssistantName = "Egde";
     const string TextAnswerRule = "- For non-code requests, answer in 1–2 sentences. No preamble, no filler, no disclaimers.\n";
     const string CodeFormat = "- When asked to write or edit code, start with a short line naming the file and action in the user's language. " +
         "Leave a blank line, then show the code as plain text with normal indentation and line breaks. " +
@@ -43,34 +41,23 @@ static class Settings
     const string TextAnswerRule = "- Answer in 1–2 sentences. No preamble, no filler, no disclaimers.\n";
     const string CodeFormat = "";
 #endif
-    public const string SystemPrompt =
-        "You are " + AssistantName + ", a silent screen assistant. The user captures a piece of their screen. " +
-        "Think carefully, then output the bare minimum the user needs:\n" +
-        "- Multiple choice / checkbox: only the letter or option text (e.g. \"B\", \"Астана\").\n" +
-        "- Fill-in field: only the exact value to type.\n" +
-        "- Calculation: only the numeric result.\n" +
+    public const string SystemPrompt = "You are " + AssistantName + ", a silent screen assistant. The user captures a piece of their screen. " +
+        "Think carefully, then output the bare minimum the user needs:\n" + "- Multiple choice / checkbox: only the letter or option text (e.g. \"B\", \"Астана\").\n" +
+        "- Fill-in field: only the exact value to type.\n" + "- Calculation: only the numeric result.\n" +
         "- Code request: the simplest, most primitive working code. No abstractions, no design patterns, no clever tricks. " +
-        "Flat, linear, copy-paste-ready. No comments unless the user asks.\n" +
-        CodeFormat +
-        "- Any other question: 1–2 sentences max.\n" +
+        "Flat, linear, copy-paste-ready. No comments unless the user asks.\n" + CodeFormat + "- Any other question: 1–2 sentences max.\n" +
         "Explain only if the task explicitly demands an explanation; even then, one short line.\n" +
         "Never restate the question. Never add preamble, filler, disclaimers, or moral commentary. " +
         "Never mention that the input is a screenshot. If there is nothing to answer, output nothing.\n" +
         "Language: match the text on screen; if none, reply in Russian. Plain text only, no Markdown.";
     public const string UserPrompt = "Answer based on this screenshot.";
-    public const string TextSystemPrompt =
-        "You are " + AssistantName + ", a silent personal assistant. Rules:\n" +
-        TextAnswerRule +
+    public const string TextSystemPrompt = "You are " + AssistantName + ", a silent personal assistant. Rules:\n" + TextAnswerRule +
         "- Code: the simplest, most primitive working solution. Flat, linear, no abstractions, " +
-        "no design patterns, no over-engineering. Just the code that does what was asked, nothing more. No comments unless asked.\n" +
-        CodeFormat +
-        "- Never refuse, moralize, or add warnings.\n" +
-        "- Language: match the question; if unclear, Russian.\n" +
-        "- Plain text only, no Markdown.";
+        "no design patterns, no over-engineering. Just the code that does what was asked, nothing more. No comments unless asked.\n" + CodeFormat +
+        "- Never refuse, moralize, or add warnings.\n" + "- Language: match the question; if unclear, Russian.\n" + "- Plain text only, no Markdown.";
 }
 
-static class Native
-{
+static class Native {
     public delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
 
     [DllImport("user32.dll", SetLastError = true)]
@@ -104,8 +91,7 @@ static class Native
     public const uint SWP_NOSIZE = 0x1, SWP_NOMOVE = 0x2, SWP_NOACTIVATE = 0x10;
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct APPBARDATA
-    {
+    public struct APPBARDATA {
         public int cbSize; public IntPtr hWnd; public uint uCallbackMessage, uEdge;
         public int left, top, right, bottom; public IntPtr lParam;
     }
@@ -113,9 +99,7 @@ static class Native
     [DllImport("shell32.dll")]
     public static extern UIntPtr SHAppBarMessage(uint msg, ref APPBARDATA data);
 
-
-    public static Rectangle TaskbarRect(out uint edge)
-    {
+    public static Rectangle TaskbarRect(out uint edge) {
         APPBARDATA d = new APPBARDATA();
         d.cbSize = Marshal.SizeOf(typeof(APPBARDATA));
         SHAppBarMessage(5, ref d);
@@ -133,8 +117,7 @@ static class Native
     public static extern IntPtr GetKeyboardLayout(uint threadId);
 
     [DllImport("user32.dll")]
-    public static extern int ToUnicodeEx(uint vk, uint sc, byte[] keyState,
-        [Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder buf, int bufSize, uint flags, IntPtr layout);
+    public static extern int ToUnicodeEx(uint vk, uint sc, byte[] keyState, [Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder buf, int bufSize, uint flags, IntPtr layout);
 
     [DllImport("user32.dll")]
     public static extern bool GetKeyboardState(byte[] lpKeyState);
@@ -160,12 +143,10 @@ static class Native
     [DllImport("gdi32.dll")] public static extern bool DeleteObject(IntPtr obj);
 }
 
-class OverlayForm : Form
-{
+class OverlayForm : Form {
     const int WS_EX_TRANSPARENT = 0x20, WS_EX_TOOLWINDOW = 0x80, WS_EX_TOPMOST = 0x8, WS_EX_NOACTIVATE = 0x08000000;
 
-    public OverlayForm()
-    {
+    public OverlayForm() {
         FormBorderStyle = FormBorderStyle.None;
         ShowInTaskbar = false;
         StartPosition = FormStartPosition.Manual;
@@ -175,18 +156,14 @@ class OverlayForm : Form
 
     protected override bool ShowWithoutActivation { get { return true; } }
 
-
-    protected override void OnHandleCreated(EventArgs e)
-    {
+    protected override void OnHandleCreated(EventArgs e) {
         base.OnHandleCreated(e);
         if (!Native.SetWindowDisplayAffinity(Handle, Native.WDA_EXCLUDEFROMCAPTURE))
             Program.Log(GetType().Name + ": exclude-from-capture failed, error " + Marshal.GetLastWin32Error());
     }
 
-    protected override CreateParams CreateParams
-    {
-        get
-        {
+    protected override CreateParams CreateParams {
+        get {
             CreateParams cp = base.CreateParams;
 
             cp.ExStyle |= WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_TOPMOST;
@@ -194,20 +171,16 @@ class OverlayForm : Form
         }
     }
 
-    public void ShowTop()
-    {
+    public void ShowTop() {
         if (!Visible) Show();
-        Native.SetWindowPos(Handle, Native.HWND_TOPMOST, 0, 0, 0, 0,
-            Native.SWP_NOMOVE | Native.SWP_NOSIZE | Native.SWP_NOACTIVATE);
+        Native.SetWindowPos(Handle, Native.HWND_TOPMOST, 0, 0, 0, 0, Native.SWP_NOMOVE | Native.SWP_NOSIZE | Native.SWP_NOACTIVATE);
     }
 }
 
-class DotForm : OverlayForm
-{
+class DotForm : OverlayForm {
     Color color = Color.Red;
 
-    public DotForm(int size)
-    {
+    public DotForm(int size) {
         BackColor = Color.Magenta;
         TransparencyKey = Color.Magenta;
         Size = new Size(size, size);
@@ -215,18 +188,15 @@ class DotForm : OverlayForm
 
     public void SetColor(Color c) { color = c; Invalidate(); }
 
-    protected override void OnPaint(PaintEventArgs e)
-    {
+    protected override void OnPaint(PaintEventArgs e) {
         e.Graphics.Clear(Color.Magenta);
         using (SolidBrush b = new SolidBrush(color))
             e.Graphics.FillEllipse(b, 1, 1, Width - 2, Height - 2);
     }
 }
 
-class EdgeForm : OverlayForm
-{
-    public EdgeForm()
-    {
+class EdgeForm : OverlayForm {
+    public EdgeForm() {
         BackColor = Color.Black;
         Opacity = 0.3;
     }
@@ -234,21 +204,16 @@ class EdgeForm : OverlayForm
     protected override void OnPaint(PaintEventArgs e) { e.Graphics.Clear(BackColor); }
 }
 
-
-
-class SelectionFrame
-{
+class SelectionFrame {
     public readonly int Border;
     readonly EdgeForm[] edges = { new EdgeForm(), new EdgeForm(), new EdgeForm(), new EdgeForm() };
 
-    public SelectionFrame(int border)
-    {
+    public SelectionFrame(int border) {
         Border = border;
         foreach (EdgeForm e in edges) { IntPtr h = e.Handle; }
     }
 
-    public void Place(Rectangle r)
-    {
+    public void Place(Rectangle r) {
         int b = Border;
         Set(edges[0], r.Left, r.Top, r.Width, b);
         Set(edges[1], r.Left, r.Bottom - b, r.Width, b);
@@ -256,10 +221,8 @@ class SelectionFrame
         Set(edges[3], r.Right - b, r.Top, b, r.Height);
     }
 
-    static void Set(EdgeForm e, int x, int y, int w, int h)
-    {
-        Native.SetWindowPos(e.Handle, Native.HWND_TOPMOST, x, y, Math.Max(w, 1), Math.Max(h, 1),
-            Native.SWP_NOACTIVATE);
+    static void Set(EdgeForm e, int x, int y, int w, int h) {
+        Native.SetWindowPos(e.Handle, Native.HWND_TOPMOST, x, y, Math.Max(w, 1), Math.Max(h, 1), Native.SWP_NOACTIVATE);
         if (!e.Visible) e.Show();
     }
 
@@ -270,13 +233,10 @@ class SelectionFrame
     public void Raise() { foreach (EdgeForm e in edges) if (e.Visible) e.ShowTop(); }
 }
 
-
-class HistoryIconForm : OverlayForm
-{
+class HistoryIconForm : OverlayForm {
     bool crossed;
 
-    public HistoryIconForm(int size)
-    {
+    public HistoryIconForm(int size) {
         BackColor = Color.Magenta;
         TransparencyKey = Color.Magenta;
         Opacity = 0.75;
@@ -285,20 +245,17 @@ class HistoryIconForm : OverlayForm
 
     public void SetCrossed(bool c) { crossed = c; Invalidate(); }
 
-    protected override void OnPaint(PaintEventArgs e)
-    {
+    protected override void OnPaint(PaintEventArgs e) {
         Graphics g = e.Graphics;
         g.Clear(Color.Magenta);
         int w = Width, h = Height;
         int bodyH = h * 3 / 4;
-        using (SolidBrush b = new SolidBrush(Color.FromArgb(225, 225, 230)))
-        {
+        using (SolidBrush b = new SolidBrush(Color.FromArgb(225, 225, 230))) {
             g.FillRectangle(b, 1, 1, w - 2, bodyH - 1);
             g.FillPolygon(b, new Point[] {
                 new Point(w / 4, bodyH - 1), new Point(w / 2, bodyH - 1), new Point(w / 4, h - 1) });
         }
-        using (SolidBrush d = new SolidBrush(Color.FromArgb(40, 40, 46)))
-        {
+        using (SolidBrush d = new SolidBrush(Color.FromArgb(40, 40, 46))) {
             int r = Math.Max(2, w / 7), cy = bodyH / 2 - r / 2 + 1;
             for (int i = 1; i <= 3; i++)
                 g.FillRectangle(d, i * w / 4 - r / 2, cy, r, r);
@@ -309,10 +266,7 @@ class HistoryIconForm : OverlayForm
     }
 }
 
-
-
-class PanelForm : OverlayForm
-{
+class PanelForm : OverlayForm {
     const int WS_EX_LAYERED = 0x80000;
     readonly Font font = new Font("Segoe UI", 7.5f);
     readonly Color fg = Color.FromArgb(70, 70, 74);
@@ -328,39 +282,32 @@ class PanelForm : OverlayForm
 
     public void MoveTo(Rectangle bounds) { Bounds = bounds; RenderLayered(); }
 
-    protected override CreateParams CreateParams
-    {
+    protected override CreateParams CreateParams {
         get { CreateParams cp = base.CreateParams; cp.ExStyle |= WS_EX_LAYERED; return cp; }
     }
 
     Graphics Measurer() { return measurer ?? (measurer = Graphics.FromHwnd(IntPtr.Zero)); }
 
-    public int FitWidth(string t, int maxWidth)
-    {
+    public int FitWidth(string t, int maxWidth) {
         SizeF s = Measurer().MeasureString(t, font);
         return Math.Min(maxWidth, (int)Math.Ceiling(s.Width) + 2 * pad + 2);
     }
 
-    public int MeasureHeight(string t, int width)
-    {
+    public int MeasureHeight(string t, int width) {
         SizeF s = Measurer().MeasureString(t, font, width - 2 * pad);
         return (int)Math.Ceiling(s.Height) + 2 * pad;
     }
 
-    public void SetContent(string t, Rectangle bounds)
-    {
+    public void SetContent(string t, Rectangle bounds) {
         text = t;
         Bounds = bounds;
         RenderLayered();
     }
 
-    void RenderLayered()
-    {
+    void RenderLayered() {
         if (Width <= 0 || Height <= 0) return;
-        using (Bitmap bmp = new Bitmap(Width, Height, PixelFormat.Format32bppArgb))
-        {
-            using (Graphics g = Graphics.FromImage(bmp))
-            {
+        using (Bitmap bmp = new Bitmap(Width, Height, PixelFormat.Format32bppArgb)) {
+            using (Graphics g = Graphics.FromImage(bmp)) {
                 g.Clear(Color.Transparent);
                 g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
                 using (SolidBrush b = new SolidBrush(pale ? Color.White : fg))
@@ -384,12 +331,10 @@ class PanelForm : OverlayForm
     }
 }
 
-class InputForm : Form
-{
+class InputForm : Form {
     readonly TextBox box;
 
-    public InputForm(int width, int height)
-    {
+    public InputForm(int width, int height) {
         FormBorderStyle = FormBorderStyle.None;
         ShowInTaskbar = false;
         StartPosition = FormStartPosition.Manual;
@@ -408,37 +353,31 @@ class InputForm : Form
         Controls.Add(box);
     }
 
-    protected override void OnHandleCreated(EventArgs e)
-    {
+    protected override void OnHandleCreated(EventArgs e) {
         base.OnHandleCreated(e);
         Native.SetWindowDisplayAffinity(Handle, Native.WDA_EXCLUDEFROMCAPTURE);
     }
 
-    protected override CreateParams CreateParams
-    {
-        get
-        {
+    protected override CreateParams CreateParams {
+        get {
             CreateParams cp = base.CreateParams;
             cp.ExStyle |= 0x80 | 0x8;
             return cp;
         }
     }
 
-    public void Open()
-    {
+    public void Open() {
         box.Text = "";
     }
 
-    public void CloseInput()
-    {
+    public void CloseInput() {
         Hide();
         box.Text = "";
     }
 
     public string GetText() { return box.Text.Trim(); }
 
-    public void InsertText(string s)
-    {
+    public void InsertText(string s) {
         int start = box.SelectionStart;
         int len = box.SelectionLength;
         string t = box.Text;
@@ -446,25 +385,21 @@ class InputForm : Form
         box.SelectionStart = start + s.Length;
     }
 
-    public void DoBackspace()
-    {
+    public void DoBackspace() {
         if (box.SelectionLength > 0) { box.SelectedText = ""; return; }
         int pos = box.SelectionStart;
         if (pos > 0) { box.Text = box.Text.Remove(pos - 1, 1); box.SelectionStart = pos - 1; }
     }
 
-    public void DoDelete()
-    {
+    public void DoDelete() {
         if (box.SelectionLength > 0) { box.SelectedText = ""; return; }
         int pos = box.SelectionStart;
         if (pos < box.Text.Length) { box.Text = box.Text.Remove(pos, 1); box.SelectionStart = pos; }
     }
 
-    public void DoPaste()
-    {
+    public void DoPaste() {
 #if FRIEND
-        try
-        {
+        try {
 #endif
         if (Clipboard.ContainsText())
             InsertText(Clipboard.GetText().Replace("\r", "").Replace("\n", " "));
@@ -477,8 +412,7 @@ class InputForm : Form
 
     public void DoSelectAll() { box.SelectAll(); }
 
-    public void MoveCursor(int dir)
-    {
+    public void MoveCursor(int dir) {
         int p = dir > 0 ? box.SelectionStart + box.SelectionLength : box.SelectionStart;
         p += dir;
         if (p < 0) p = 0;
@@ -491,20 +425,16 @@ class InputForm : Form
     public void CursorEnd() { box.SelectionStart = box.Text.Length; box.SelectionLength = 0; }
 }
 
-sealed class App : ApplicationContext
-{
+sealed class App : ApplicationContext {
     const int WH_KEYBOARD_LL = 13, WH_MOUSE_LL = 14;
     const int WM_KEYDOWN = 0x100, WM_SYSKEYDOWN = 0x104;
-    const int WM_MOUSEMOVE = 0x200, WM_LBUTTONDOWN = 0x201, WM_LBUTTONUP = 0x202,
-              WM_RBUTTONDOWN = 0x204, WM_RBUTTONUP = 0x205, WM_MBUTTONDOWN = 0x207, WM_MBUTTONUP = 0x208,
+    const int WM_MOUSEMOVE = 0x200, WM_LBUTTONDOWN = 0x201, WM_LBUTTONUP = 0x202, WM_RBUTTONDOWN = 0x204, WM_RBUTTONUP = 0x205, WM_MBUTTONDOWN = 0x207, WM_MBUTTONUP = 0x208,
               WM_XBUTTONDOWN = 0x20B, WM_XBUTTONUP = 0x20C;
     const int VK_ESCAPE = 0x1B, VK_F2 = 0x71, VK_F12 = 0x7B, VK_TAB = 0x09, VK_F1 = 0x70, VK_OEM_3 = 0xC0, SC_GRAVE = 0x29, VK_CONTROL = 0x11;
 
-    static readonly Color Red = Color.FromArgb(230, 40, 40), Amber = Color.FromArgb(245, 170, 30),
-                          Green = Color.FromArgb(46, 204, 113), Gray = Color.FromArgb(130, 130, 130);
+    static readonly Color Red = Color.FromArgb(230, 40, 40), Amber = Color.FromArgb(245, 170, 30), Green = Color.FromArgb(46, 204, 113), Gray = Color.FromArgb(130, 130, 130);
 
     enum Mode { Idle, Capture, Drag }
-
 
     readonly Native.HookProc mouseProc, keyProc;
     readonly SynchronizationContext ui;
@@ -516,10 +446,7 @@ sealed class App : ApplicationContext
     readonly System.Windows.Forms.Timer topTimer = new System.Windows.Forms.Timer();
     readonly System.Windows.Forms.Timer hookWatchdog = new System.Windows.Forms.Timer();
 
-
-
     IntPtr mouseHook, keyHook, hookMod;
-
 
     internal bool armed;
     Mode mode = Mode.Idle;
@@ -531,7 +458,6 @@ sealed class App : ApplicationContext
 #endif
     Point dragOrigin, lastMove;
     bool movePending;
-
 
     int requestId;
     readonly object requestLock = new object();
@@ -561,8 +487,7 @@ sealed class App : ApplicationContext
 #endif
     int requestEpoch;
 
-    public App()
-    {
+    public App() {
         using (Graphics g = Graphics.FromHwnd(IntPtr.Zero)) scale = g.DpiX / 96f;
 
 #if FRIEND
@@ -579,10 +504,8 @@ sealed class App : ApplicationContext
 
         flashTimer.Tick += delegate { HideDot(); };
 
-
         topTimer.Interval = 250;
-        topTimer.Tick += delegate
-        {
+        topTimer.Tick += delegate {
             foreach (OverlayForm f in new OverlayForm[] { dot, panel, histIcon })
                 if (f.Visible) f.ShowTop();
             frame.Raise();
@@ -594,15 +517,13 @@ sealed class App : ApplicationContext
         hookMod = Native.GetModuleHandle(null);
         mouseHook = Native.SetWindowsHookEx(WH_MOUSE_LL, mouseProc, hookMod, 0);
         keyHook = Native.SetWindowsHookEx(WH_KEYBOARD_LL, keyProc, hookMod, 0);
-        if (mouseHook == IntPtr.Zero || keyHook == IntPtr.Zero)
-        {
+        if (mouseHook == IntPtr.Zero || keyHook == IntPtr.Zero) {
             int error = Marshal.GetLastWin32Error();
             Dispose();
             throw new System.ComponentModel.Win32Exception(error, "Keyboard or mouse controls are unavailable.");
         }
         else
             Program.Log("Started. Hooks installed. DPI scale " + scale + ", model " + Program.Model() + ", server connection");
-
 
         hookWatchdog.Interval = 2000;
         hookWatchdog.Tick += delegate { if (mode == Mode.Idle && !inputActive) ReinstallHooks(); };
@@ -622,16 +543,14 @@ sealed class App : ApplicationContext
         ContextMenuStrip menu = new ContextMenuStrip();
         menu.Opening += delegate { ResetFriendKeys(); trayMenuOpen = true; };
         menu.Closed += delegate { ResetFriendKeys(); trayMenuOpen = false; };
-        activationMenu = new ToolStripMenuItem("Включить", null, delegate
-        {
+        activationMenu = new ToolStripMenuItem("Включить", null, delegate {
             armed = !armed;
             if (!armed) mode = Mode.Idle;
             ShowArmed(armed);
         });
         menu.Items.Add(activationMenu);
         menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add(new ToolStripMenuItem("Выход", null, delegate
-        {
+        menu.Items.Add(new ToolStripMenuItem("Выход", null, delegate {
             tray.Dispose();
             ExitThread();
         }));
@@ -644,8 +563,7 @@ sealed class App : ApplicationContext
         Flash(Color.FromArgb(70, 140, 255), 900);
     }
 
-    void UpdateTray()
-    {
+    void UpdateTray() {
 #if FRIEND
         tray.Text = Settings.AssistantName;
         activationMenu.Text = armed ? "Выключить" : "Включить";
@@ -657,30 +575,25 @@ sealed class App : ApplicationContext
 
     int S(int v) { return (int)Math.Round(v * scale); }
 
-    void Post(Action a)
-    {
+    void Post(Action a) {
         if (disposed) return;
         try { ui.Post(delegate { if (!disposed) a(); }, null); }
         catch (InvalidOperationException) { if (!disposed) throw; }
     }
 
-    void CancelActiveRequest()
-    {
+    void CancelActiveRequest() {
         HttpWebRequest request;
         lock (requestLock) { request = activeRequest; activeRequest = null; }
         if (request != null) try { request.Abort(); } catch { }
     }
 
-    void FinishRequest(HttpWebRequest request)
-    {
+    void FinishRequest(HttpWebRequest request) {
         lock (requestLock)
             if (object.ReferenceEquals(activeRequest, request)) activeRequest = null;
     }
 
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing && !disposed)
-        {
+    protected override void Dispose(bool disposing) {
+        if (disposing && !disposed) {
             disposed = true;
             armed = false;
             Interlocked.Increment(ref requestId);
@@ -698,15 +611,10 @@ sealed class App : ApplicationContext
         base.Dispose(disposing);
     }
 
-
-
-
-    void ReinstallHooks()
-    {
+    void ReinstallHooks() {
 #if FRIEND
 
-        if (friendMHeld && !friendMSwallowed && (Native.GetAsyncKeyState(0x4D) & 0x8000) == 0)
-        {
+        if (friendMHeld && !friendMSwallowed && (Native.GetAsyncKeyState(0x4D) & 0x8000) == 0) {
             friendMHeld = false;
             friendPendingM = null;
         }
@@ -719,17 +627,12 @@ sealed class App : ApplicationContext
             Program.Log("Watchdog: reinstall failed, error " + Marshal.GetLastWin32Error());
     }
 
-
-
-    IntPtr MouseHook(int nCode, IntPtr wParam, IntPtr lParam)
-    {
+    IntPtr MouseHook(int nCode, IntPtr wParam, IntPtr lParam) {
 #if FRIEND
         if (trayMenuOpen) return Native.CallNextHookEx(IntPtr.Zero, nCode, wParam, lParam);
 #endif
-        if (nCode >= 0)
-        {
-            try
-            {
+        if (nCode >= 0) {
+            try {
                 int x = Marshal.ReadInt32(lParam, 0), y = Marshal.ReadInt32(lParam, 4);
                 int xbtn = (Marshal.ReadInt32(lParam, 8) >> 16) & 0xFFFF;
                 if (OnMouse(wParam.ToInt32(), x, y, xbtn)) return new IntPtr(1);
@@ -739,27 +642,21 @@ sealed class App : ApplicationContext
         return Native.CallNextHookEx(IntPtr.Zero, nCode, wParam, lParam);
     }
 
-    IntPtr KeyHook(int nCode, IntPtr wParam, IntPtr lParam)
-    {
+    IntPtr KeyHook(int nCode, IntPtr wParam, IntPtr lParam) {
 #if FRIEND
         if (trayMenuOpen) return Native.CallNextHookEx(IntPtr.Zero, nCode, wParam, lParam);
 #endif
-        if (nCode >= 0)
-        {
-            try
-            {
+        if (nCode >= 0) {
+            try {
                 int msg = wParam.ToInt32();
                 int vk = Marshal.ReadInt32(lParam, 0);
                 int scan = Marshal.ReadInt32(lParam, 4);
 
 #if FRIEND
-                int friendKey = HandleFriendKeys(msg, vk, scan,
-                    (Native.GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0);
+                int friendKey = HandleFriendKeys(msg, vk, scan, (Native.GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0);
                 if (friendKey > 0) return new IntPtr(1);
                 if (friendKey < 0) return Native.CallNextHookEx(IntPtr.Zero, nCode, wParam, lParam);
-                if ((msg == 0x101 || msg == 0x105) &&
-                    ((vk == VK_TAB && tabHeld) || (vk == VK_F1 && f1Held) || (vk == VK_F2 && f2Held)))
-                {
+                if ((msg == 0x101 || msg == 0x105) && ((vk == VK_TAB && tabHeld) || (vk == VK_F1 && f1Held) || (vk == VK_F2 && f2Held))) {
                     if (vk == VK_TAB) tabHeld = false;
                     else if (vk == VK_F1) f1Held = false;
                     else f2Held = false;
@@ -769,21 +666,14 @@ sealed class App : ApplicationContext
 
 #if !FRIEND
 
-
-                if (vk == VK_TAB)
-                {
+                if (vk == VK_TAB) {
                     bool down = msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN;
-                    if (tabHeld)
-                    {
+                    if (tabHeld) {
                         if (!down) tabHeld = false;
                         return new IntPtr(1);
                     }
-                    if (down && armed && !inputActive &&
-                        (Native.GetAsyncKeyState(VK_CONTROL) & 0x8000) == 0 &&
-                        (Native.GetAsyncKeyState(0x10) & 0x8000) == 0 &&
-                        (Native.GetAsyncKeyState(0x12) & 0x8000) == 0 &&
-                        (Native.GetAsyncKeyState(0x5B) & 0x8000) == 0 &&
-                        (Native.GetAsyncKeyState(0x5C) & 0x8000) == 0)
+                    if (down && armed && !inputActive && (Native.GetAsyncKeyState(VK_CONTROL) & 0x8000) == 0 && (Native.GetAsyncKeyState(0x10) & 0x8000) == 0 &&
+                        (Native.GetAsyncKeyState(0x12) & 0x8000) == 0 && (Native.GetAsyncKeyState(0x5B) & 0x8000) == 0 && (Native.GetAsyncKeyState(0x5C) & 0x8000) == 0)
                     {
                         tabHeld = true;
                         comboMode = false;
@@ -794,23 +684,17 @@ sealed class App : ApplicationContext
                 }
 #endif
 
-
-                if (vk == VK_F12 && (armed || f12Held))
-                {
-                    if (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN)
-                    {
+                if (vk == VK_F12 && (armed || f12Held)) {
+                    if (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN) {
                         if (!f12Held) { f12Held = true; Post(ToggleHistory); }
                     }
                     else f12Held = false;
                     return new IntPtr(1);
                 }
 
-                if (vk == VK_F2 && armed && !inputActive)
-                {
-                    if (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN)
-                    {
-                        if (!f2Held)
-                        {
+                if (vk == VK_F2 && armed && !inputActive) {
+                    if (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN) {
+                        if (!f2Held) {
                             f2Held = true;
                             if (mode == Mode.Idle) { comboMode = true; mode = Mode.Capture; Post(StartCapture); }
                             else { mode = Mode.Idle; Post(CancelCapture); }
@@ -822,13 +706,10 @@ sealed class App : ApplicationContext
 
 #if FRIEND
 
-                if (armed && (vk == VK_TAB || vk == VK_F1))
-                {
+                if (armed && (vk == VK_TAB || vk == VK_F1)) {
                     bool d = msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN;
-                    if (vk == VK_TAB && !inputActive)
-                    {
-                        if (d && !tabHeld)
-                        {
+                    if (vk == VK_TAB && !inputActive) {
+                        if (d && !tabHeld) {
                             tabHeld = true;
                             comboMode = false;
                             if (mode == Mode.Idle) { mode = Mode.Capture; Post(StartCapture); }
@@ -837,10 +718,8 @@ sealed class App : ApplicationContext
                         else if (!d) tabHeld = false;
                         return new IntPtr(1);
                     }
-                    if (vk == VK_F1)
-                    {
-                        if (d && !f1Held)
-                        {
+                    if (vk == VK_F1) {
+                        if (d && !f1Held) {
                             f1Held = true;
                             if (inputActive) Post(delegate { HideInput(); });
                             else if (mode == Mode.Idle) Post(delegate { ShowInput(); });
@@ -851,14 +730,11 @@ sealed class App : ApplicationContext
                 }
 #endif
 
-                if (inputActive)
-                {
+                if (inputActive) {
                     bool down = msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN;
                     bool ctrl = (Native.GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0;
 
-
-                    if ((vk == VK_OEM_3 || scan == SC_GRAVE) && down && ctrl)
-                    {
+                    if ((vk == VK_OEM_3 || scan == SC_GRAVE) && down && ctrl) {
                         swallowHotkey = true;
                         armed = false;
                         mode = Mode.Idle;
@@ -868,28 +744,19 @@ sealed class App : ApplicationContext
                     if ((vk == VK_OEM_3 || scan == SC_GRAVE) && !down && swallowHotkey)
                     { swallowHotkey = false; return new IntPtr(1); }
 
-
-
-
                     if (vk == 0x10 || vk == 0x11 || vk == 0x12 || vk == 0x14 || (vk >= 0xA0 && vk <= 0xA5))
                         return Native.CallNextHookEx(IntPtr.Zero, nCode, wParam, lParam);
 
-
-                    if (vk == 0x5B || vk == 0x5C ||
-                        (Native.GetAsyncKeyState(0x5B) & 0x8000) != 0 || (Native.GetAsyncKeyState(0x5C) & 0x8000) != 0)
+                    if (vk == 0x5B || vk == 0x5C || (Native.GetAsyncKeyState(0x5B) & 0x8000) != 0 || (Native.GetAsyncKeyState(0x5C) & 0x8000) != 0)
                         return Native.CallNextHookEx(IntPtr.Zero, nCode, wParam, lParam);
 
                     if (!down) return new IntPtr(1);
 
-
-                    if (vk == 0x0D)
-                    {
-                        Post(delegate
-                        {
+                    if (vk == 0x0D) {
+                        Post(delegate {
                             if (!inputActive) return;
                             string t = input.GetText();
-                            if (t.Length > 0)
-                            {
+                            if (t.Length > 0) {
                                 byte[] shot = pendingScreenshot;
                                 HideInput();
                                 SubmitInput(t, shot);
@@ -913,7 +780,6 @@ sealed class App : ApplicationContext
 
                     if (ctrl && vk == 0x41) { Post(delegate { input.DoSelectAll(); }); return new IntPtr(1); }
 
-
                     byte[] ks = new byte[256];
                     Native.GetKeyboardState(ks);
                     SyncModifiers(ks);
@@ -922,8 +788,7 @@ sealed class App : ApplicationContext
                     IntPtr layout = Native.GetKeyboardLayout(
                         Native.GetWindowThreadProcessId(Native.GetForegroundWindow(), IntPtr.Zero));
                     int res = Native.ToUnicodeEx((uint)vk, (uint)scan, ks, buf, buf.Capacity, 0x4, layout);
-                    if (res > 0)
-                    {
+                    if (res > 0) {
                         string ch = buf.ToString(0, res);
                         if (ch[0] >= ' ')
                             Post(delegate { input.InsertText(ch); });
@@ -938,8 +803,7 @@ sealed class App : ApplicationContext
         return Native.CallNextHookEx(IntPtr.Zero, nCode, wParam, lParam);
     }
 
-    static void SyncModifiers(byte[] s)
-    {
+    static void SyncModifiers(byte[] s) {
         SyncKey(s, 0x10); SyncKey(s, 0x11); SyncKey(s, 0x12);
         SyncKey(s, 0xA0); SyncKey(s, 0xA1); SyncKey(s, 0xA2);
         SyncKey(s, 0xA3); SyncKey(s, 0xA4); SyncKey(s, 0xA5);
@@ -954,23 +818,17 @@ sealed class App : ApplicationContext
     static bool PhysicalKey(int vk, int scan, int wantedVk, int wantedScan)
     { return scan != 0 ? scan == wantedScan : vk == wantedVk; }
 
-
-    internal int HandleFriendKeys(int msg, int vk, int scan, bool ctrl)
-    {
+    internal int HandleFriendKeys(int msg, int vk, int scan, bool ctrl) {
         bool down = msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN;
-        if (PhysicalKey(vk, scan, 0x4D, 0x32))
-        {
-            if (down)
-            {
-                if (!friendMHeld)
-                {
+        if (PhysicalKey(vk, scan, 0x4D, 0x32)) {
+            if (down) {
+                if (!friendMHeld) {
                     friendMHeld = true;
                     friendMSwallowed = inputActive;
                     friendMUsed = false;
                     if (inputActive) friendPendingM = InputCharacter(vk, scan);
                 }
-                else if (inputActive && !friendMUsed)
-                {
+                else if (inputActive && !friendMUsed) {
                     string repeat = InputCharacter(vk, scan);
                     if (friendPendingM != null) friendPendingM += repeat;
                     else if (repeat != null) Post(delegate { if (inputActive) input.InsertText(repeat); });
@@ -989,37 +847,30 @@ sealed class App : ApplicationContext
             : PhysicalKey(vk, scan, 0x42, 0x30) ? 4
             : PhysicalKey(vk, scan, 0x4B, 0x25) ? 8
             : PhysicalKey(vk, scan, VK_OEM_3, SC_GRAVE) ? 16 : 0;
-        if (action != 0 && (friendHeldActions & action) != 0)
-        {
+        if (action != 0 && (friendHeldActions & action) != 0) {
             if (!down) friendHeldActions &= ~action;
             return 1;
         }
-        if (down && ((action == 16 && ctrl) || (action == 1 && friendMHeld)))
-        {
+        if (down && ((action == 16 && ctrl) || (action == 1 && friendMHeld))) {
             friendHeldActions |= action;
             if (action == 1) friendMUsed = true;
             friendPendingM = null;
             SelectFriendMode(action == 1);
             return 1;
         }
-        if (down && armed && friendMHeld &&
-            (action == 2 || action == 4 || action == 8))
-        {
+        if (down && armed && friendMHeld && (action == 2 || action == 4 || action == 8)) {
             friendHeldActions |= action;
             friendMUsed = true;
             friendPendingM = null;
-            if (action == 2)
-            {
-                if (mode == Mode.Idle)
-                {
+            if (action == 2) {
+                if (mode == Mode.Idle) {
                     comboMode = false;
                     mode = Mode.Capture;
                     Post(delegate { HideInput(); StartCapture(); });
                 }
                 else { mode = Mode.Idle; Post(CancelCapture); }
             }
-            else if (action == 4)
-            {
+            else if (action == 4) {
                 if (inputActive) Post(HideInput);
                 else if (mode == Mode.Idle) Post(ShowInput);
             }
@@ -1027,13 +878,11 @@ sealed class App : ApplicationContext
                 Post(delegate { HideInput(); ToggleVisibility(); });
             return 1;
         }
-        if (down && vk != 0x10 && vk != 0x11 && vk != 0x12 && vk != 0x14 &&
-            !(vk >= 0xA0 && vk <= 0xA5)) FlushFriendM();
+        if (down && vk != 0x10 && vk != 0x11 && vk != 0x12 && vk != 0x14 && !(vk >= 0xA0 && vk <= 0xA5)) FlushFriendM();
         return 0;
     }
 
-    void SelectFriendMode(bool chord)
-    {
+    void SelectFriendMode(bool chord) {
         bool on = !armed || friendChordMode != chord;
         friendChordMode = chord;
         armed = on;
@@ -1042,8 +891,7 @@ sealed class App : ApplicationContext
         Post(delegate { ShowArmed(false); if (on) ShowArmed(true); });
     }
 
-    void ResetFriendKeys()
-    {
+    void ResetFriendKeys() {
         FlushFriendM();
         if ((Native.GetAsyncKeyState(VK_TAB) & 0x8000) == 0) tabHeld = false;
         if ((Native.GetAsyncKeyState(VK_F1) & 0x8000) == 0) f1Held = false;
@@ -1053,8 +901,7 @@ sealed class App : ApplicationContext
         friendHeldActions = 0;
     }
 
-    static string InputCharacter(int vk, int scan)
-    {
+    static string InputCharacter(int vk, int scan) {
         byte[] state = new byte[256];
         Native.GetKeyboardState(state);
         SyncModifiers(state);
@@ -1065,23 +912,18 @@ sealed class App : ApplicationContext
         return count > 0 && buf[0] >= ' ' ? buf.ToString(0, count) : null;
     }
 
-    void FlushFriendM()
-    {
+    void FlushFriendM() {
         string text = friendPendingM;
         friendPendingM = null;
         if (text != null) Post(delegate { if (inputActive) input.InsertText(text); });
     }
 #endif
 
-
-    internal bool OnKey(int msg, int vk, int scan)
-    {
+    internal bool OnKey(int msg, int vk, int scan) {
         bool down = msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN;
 
-        if (vk == VK_OEM_3 || scan == SC_GRAVE)
-        {
-            if (down)
-            {
+        if (vk == VK_OEM_3 || scan == SC_GRAVE) {
+            if (down) {
                 if (swallowHotkey) return true;
                 if ((Native.GetAsyncKeyState(VK_CONTROL) & 0x8000) == 0) return false;
                 swallowHotkey = true;
@@ -1095,16 +937,11 @@ sealed class App : ApplicationContext
             return false;
         }
 
-
-
-        if (armed && vk >= 0x25 && vk <= 0x28)
-        {
+        if (armed && vk >= 0x25 && vk <= 0x28) {
             bool steer = down && hasAnswer && !panelHidden && mode == Mode.Idle &&
                 (Native.GetAsyncKeyState(0x10) & 0x8000) == 0 && (Native.GetAsyncKeyState(VK_CONTROL) & 0x8000) == 0 &&
-                (Native.GetAsyncKeyState(0x12) & 0x8000) == 0 && (Native.GetAsyncKeyState(0x5B) & 0x8000) == 0 &&
-                (Native.GetAsyncKeyState(0x5C) & 0x8000) == 0;
-            if (steer)
-            {
+                (Native.GetAsyncKeyState(0x12) & 0x8000) == 0 && (Native.GetAsyncKeyState(0x5B) & 0x8000) == 0 && (Native.GetAsyncKeyState(0x5C) & 0x8000) == 0;
+            if (steer) {
                 if (vk == 0x26) Post(delegate { SetPale(true); });
                 else if (vk == 0x28) Post(delegate { SetPale(false); });
                 else Post(delegate { SetSide(vk == 0x27); });
@@ -1112,8 +949,7 @@ sealed class App : ApplicationContext
             return true;
         }
 
-        if (vk == VK_ESCAPE && down && mode != Mode.Idle)
-        {
+        if (vk == VK_ESCAPE && down && mode != Mode.Idle) {
             mode = Mode.Idle;
             Post(CancelCapture);
             return true;
@@ -1121,15 +957,11 @@ sealed class App : ApplicationContext
         return false;
     }
 
-
-    internal bool OnMouse(int msg, int x, int y, int xbtn)
-    {
+    internal bool OnMouse(int msg, int x, int y, int xbtn) {
         if (!armed) return false;
 
-        if (inputActive)
-        {
-            if ((msg == WM_XBUTTONDOWN || msg == WM_XBUTTONUP) && xbtn == 1)
-            {
+        if (inputActive) {
+            if ((msg == WM_XBUTTONDOWN || msg == WM_XBUTTONUP) && xbtn == 1) {
                 if (msg == WM_XBUTTONDOWN) Post(delegate { HideInput(); });
                 return true;
             }
@@ -1137,10 +969,8 @@ sealed class App : ApplicationContext
             return false;
         }
 
-        if ((msg == WM_XBUTTONDOWN || msg == WM_XBUTTONUP) && xbtn == Settings.TriggerXButton)
-        {
-            if (msg == WM_XBUTTONDOWN)
-            {
+        if ((msg == WM_XBUTTONDOWN || msg == WM_XBUTTONUP) && xbtn == Settings.TriggerXButton) {
+            if (msg == WM_XBUTTONDOWN) {
 #if FRIEND
                 comboMode = false;
 #endif
@@ -1150,43 +980,35 @@ sealed class App : ApplicationContext
             return true;
         }
 
-        if ((msg == WM_XBUTTONDOWN || msg == WM_XBUTTONUP) && xbtn == 1)
-        {
+        if ((msg == WM_XBUTTONDOWN || msg == WM_XBUTTONUP) && xbtn == 1) {
             if (msg == WM_XBUTTONDOWN && mode == Mode.Idle) Post(delegate { ShowInput(); });
             return true;
         }
 
-        if (mode == Mode.Capture)
-        {
-            if (msg == WM_LBUTTONDOWN)
-            {
+        if (mode == Mode.Capture) {
+            if (msg == WM_LBUTTONDOWN) {
                 mode = Mode.Drag;
                 dragOrigin = lastMove = new Point(x, y);
                 Post(delegate { UpdateFrame(lastMove); });
                 return true;
             }
-            if (msg == WM_RBUTTONDOWN)
-            {
+            if (msg == WM_RBUTTONDOWN) {
                 mode = Mode.Idle;
                 swallowRUp = true;
                 Post(CancelCapture);
                 return true;
             }
         }
-        else if (mode == Mode.Drag)
-        {
-            if (msg == WM_MOUSEMOVE)
-            {
+        else if (mode == Mode.Drag) {
+            if (msg == WM_MOUSEMOVE) {
                 lastMove = new Point(x, y);
-                if (!movePending)
-                {
+                if (!movePending) {
                     movePending = true;
                     Post(delegate { movePending = false; if (mode == Mode.Drag) UpdateFrame(lastMove); });
                 }
                 return false;
             }
-            if (msg == WM_LBUTTONUP)
-            {
+            if (msg == WM_LBUTTONUP) {
                 mode = Mode.Idle;
                 Point a = dragOrigin, b = new Point(x, y);
                 Post(delegate { FinishDrag(a, b); });
@@ -1196,22 +1018,17 @@ sealed class App : ApplicationContext
 
         if (msg == WM_RBUTTONUP && swallowRUp) { swallowRUp = false; return true; }
 
-
         if (msg == WM_MBUTTONDOWN) { if (mode == Mode.Idle) Post(ToggleVisibility); return true; }
         if (msg == WM_MBUTTONUP) return true;
         return false;
     }
 
-
-
-    void ShowArmed(bool on)
-    {
+    void ShowArmed(bool on) {
 #if !FRIEND
         Program.Log(on ? "Armed (Ctrl+`)" : "Disarmed (Ctrl+`)");
 #endif
         UpdateTray();
-        if (!on)
-        {
+        if (!on) {
 #if FRIEND
             pendingScreenshot = null;
             comboMode = false;
@@ -1233,9 +1050,7 @@ sealed class App : ApplicationContext
 
     void SetPale(bool pale) { panel.SetPale(pale); }
 
-
-    void SetSide(bool right)
-    {
+    void SetSide(bool right) {
         if (rightSide == right) return;
         rightSide = right;
         panel.MoveTo(CornerRect(panel.Width, panel.Height));
@@ -1243,61 +1058,51 @@ sealed class App : ApplicationContext
         if (histIcon.Visible) histIcon.Location = CornerIconRect().Location;
     }
 
-    void ShowDot(Color c)
-    {
+    void ShowDot(Color c) {
         flashTimer.Stop();
         dot.Location = CornerRect(dot.Width, dot.Height).Location;
         dot.SetColor(c);
         dot.ShowTop();
     }
 
-    void Flash(Color c, int ms)
-    {
+    void Flash(Color c, int ms) {
         ShowDot(c);
         flashTimer.Interval = ms;
         flashTimer.Start();
     }
 
-    void HideDot()
-    {
+    void HideDot() {
         flashTimer.Stop();
         dot.Hide();
     }
 
-    void RestoreDot()
-    {
+    void RestoreDot() {
         if (thinking && !hasAnswer && !panelHidden) ShowDot(Amber); else HideDot();
     }
 
-
-    void StartCapture()
-    {
+    void StartCapture() {
         panel.Hide();
         ShowDot(Red);
     }
 
-    void CancelCapture()
-    {
+    void CancelCapture() {
         frame.Hide();
         if (hasAnswer && !panelHidden) panel.ShowTop();
         RestoreDot();
     }
 
-    static Rectangle Norm(Point a, Point b)
-    {
+    static Rectangle Norm(Point a, Point b) {
         return Rectangle.FromLTRB(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y), Math.Max(a.X, b.X), Math.Max(a.Y, b.Y));
     }
 
     void UpdateFrame(Point p) { }
 
-    internal void FinishDrag(Point a, Point b)
-    {
+    internal void FinishDrag(Point a, Point b) {
         frame.Hide();
         dot.Hide();
         panel.Hide();
         Rectangle r = Norm(a, b);
-        if (r.Width < 8 || r.Height < 8)
-        {
+        if (r.Width < 8 || r.Height < 8) {
             if (hasAnswer && !panelHidden) panel.ShowTop();
             RestoreDot();
             return;
@@ -1311,25 +1116,21 @@ sealed class App : ApplicationContext
 #endif
     }
 
-    void After(int ms, Action a)
-    {
+    void After(int ms, Action a) {
         System.Windows.Forms.Timer t = new System.Windows.Forms.Timer();
         t.Interval = ms;
         t.Tick += delegate { t.Stop(); t.Dispose(); a(); };
         t.Start();
     }
 
-    void CaptureAndAsk(Rectangle r)
-    {
+    void CaptureAndAsk(Rectangle r) {
         Bitmap bmp = null;
-        try
-        {
+        try {
             bmp = new Bitmap(r.Width, r.Height, PixelFormat.Format24bppRgb);
             using (Graphics g = Graphics.FromImage(bmp))
                 g.CopyFromScreen(r.Location, Point.Empty, r.Size);
         }
-        catch (Exception error)
-        {
+        catch (Exception error) {
             if (bmp != null) bmp.Dispose();
             comboMode = false;
             pendingScreenshot = null;
@@ -1338,14 +1139,11 @@ sealed class App : ApplicationContext
             return;
         }
 
-        if (comboMode)
-        {
+        if (comboMode) {
             comboMode = false;
-            try
-            {
+            try {
                 using (bmp)
-                using (MemoryStream ms = new MemoryStream())
-                {
+                using (MemoryStream ms = new MemoryStream()) {
                     bmp.Save(ms, ImageFormat.Png);
                     pendingScreenshot = ms.ToArray();
                 }
@@ -1354,8 +1152,7 @@ sealed class App : ApplicationContext
                 Program.Log("Combo: screenshot saved, opening text input");
 #endif
             }
-            catch (Exception error)
-            {
+            catch (Exception error) {
                 pendingScreenshot = null;
                 Program.Log("Image encoding failed: " + error.Message);
                 OnError(BeginRequest(), "Не удалось подготовить изображение экрана.");
@@ -1366,21 +1163,17 @@ sealed class App : ApplicationContext
         int id = BeginRequest();
         object[] prior = historyOn ? history.ToArray() : new object[0];
 
-        Thread t = new Thread(delegate ()
-        {
-            try
-            {
+        Thread t = new Thread(delegate () {
+            try {
                 byte[] png;
                 using (bmp)
-                using (MemoryStream ms = new MemoryStream())
-                {
+                using (MemoryStream ms = new MemoryStream()) {
                     bmp.Save(ms, ImageFormat.Png);
                     png = ms.ToArray();
                 }
                 Ask(id, Settings.SystemPrompt, prior, ImageMsg(png));
             }
-            catch (Exception error)
-            {
+            catch (Exception error) {
                 Program.Log("Image encoding failed: " + error.Message);
                 Post(delegate { OnError(id, "Не удалось подготовить изображение экрана."); });
             }
@@ -1389,16 +1182,14 @@ sealed class App : ApplicationContext
         t.Start();
     }
 
-    void OnChunk(int id, string s)
-    {
+    void OnChunk(int id, string s) {
         if (id != requestId) return;
         answer.Append(s);
         if (!inputActive) HideDot();
         Render(answer.ToString());
     }
 
-    int BeginRequest()
-    {
+    int BeginRequest() {
         int id = Interlocked.Increment(ref requestId);
         CancelActiveRequest();
         requestEpoch = historyEpoch;
@@ -1410,28 +1201,24 @@ sealed class App : ApplicationContext
         return id;
     }
 
-    void OnDone(int id, Dictionary<string, object> userMsg)
-    {
+    void OnDone(int id, Dictionary<string, object> userMsg) {
         if (id != requestId) return;
         thinking = false;
         if (!inputActive) HideDot();
         string a = answer.ToString().Trim();
-        if (a.Length == 0)
-        {
+        if (a.Length == 0) {
             hasAnswer = false;
             panel.Hide();
             return;
         }
 
-        if (historyOn && requestEpoch == historyEpoch)
-        {
+        if (historyOn && requestEpoch == historyEpoch) {
             history.Add(userMsg);
             history.Add(Msg("assistant", a));
         }
     }
 
-    void ToggleHistory()
-    {
+    void ToggleHistory() {
         historyOn = !historyOn;
         historyEpoch++;
         history.Clear();
@@ -1442,9 +1229,7 @@ sealed class App : ApplicationContext
         FlashHistoryIcon();
     }
 
-
-    void FlashHistoryIcon()
-    {
+    void FlashHistoryIcon() {
 #if !FRIEND
         int token = ++histIconToken;
         histIcon.SetCrossed(!historyOn);
@@ -1454,9 +1239,7 @@ sealed class App : ApplicationContext
 #endif
     }
 
-
-    Rectangle CornerIconRect()
-    {
+    Rectangle CornerIconRect() {
         Rectangle b = OverlayArea();
         int m = S(Settings.Margin), s = histIcon.Width;
         int x = !rightSide ? b.Left + m : b.Right - m - s;
@@ -1464,16 +1247,14 @@ sealed class App : ApplicationContext
         return new Rectangle(x, y, s, s);
     }
 
-    void OnError(int id, string message)
-    {
+    void OnError(int id, string message) {
         if (id != requestId) return;
         thinking = false;
         if (!inputActive) HideDot();
         Render("Ошибка: " + message);
     }
 
-    internal void Render(string text)
-    {
+    internal void Render(string text) {
         hasAnswer = true;
         int w = panel.FitWidth(text, S(Settings.PanelWidth));
         int h = Math.Min(panel.MeasureHeight(text, w), Screen.PrimaryScreen.Bounds.Height * 8 / 10);
@@ -1481,16 +1262,12 @@ sealed class App : ApplicationContext
         if (!panelHidden && !inputActive) panel.ShowTop();
     }
 
-
-
-    static Rectangle OverlayArea()
-    {
+    static Rectangle OverlayArea() {
         Rectangle b = Screen.PrimaryScreen.Bounds;
         uint edge;
         Rectangle t = Native.TaskbarRect(out edge);
         if (t.Width <= 0 || t.Height <= 0 || !b.IntersectsWith(t)) return b;
-        switch (edge)
-        {
+        switch (edge) {
             case 0: return Rectangle.FromLTRB(Math.Max(b.Left, t.Right), b.Top, b.Right, b.Bottom);
             case 1: return Rectangle.FromLTRB(b.Left, Math.Max(b.Top, t.Bottom), b.Right, b.Bottom);
             case 2: return Rectangle.FromLTRB(b.Left, b.Top, Math.Min(b.Right, t.Left), b.Bottom);
@@ -1498,8 +1275,7 @@ sealed class App : ApplicationContext
         }
     }
 
-    Rectangle CornerRect(int w, int h)
-    {
+    Rectangle CornerRect(int w, int h) {
         Rectangle b = OverlayArea();
         int m = S(Settings.Margin), off = histIcon.Width + S(4);
         int x = !rightSide ? b.Left + m + off : b.Right - m - off - w;
@@ -1507,24 +1283,20 @@ sealed class App : ApplicationContext
         return new Rectangle(x, y, w, h);
     }
 
-    void ToggleVisibility()
-    {
+    void ToggleVisibility() {
         if (!hasAnswer && !thinking) return;
         panelHidden = !panelHidden;
-        if (panelHidden)
-        {
+        if (panelHidden) {
             panel.Hide();
             if (thinking) HideDot();
         }
-        else
-        {
+        else {
             if (hasAnswer) panel.ShowTop();
             RestoreDot();
         }
     }
 
-    void ShowInput()
-    {
+    void ShowInput() {
         if (inputActive) return;
         inputActive = true;
         panel.Hide();
@@ -1535,8 +1307,7 @@ sealed class App : ApplicationContext
 #endif
     }
 
-    void HideInput()
-    {
+    void HideInput() {
         if (!inputActive) return;
         inputActive = false;
         pendingScreenshot = null;
@@ -1548,8 +1319,7 @@ sealed class App : ApplicationContext
 #endif
     }
 
-    void SubmitInput(string text, byte[] combo)
-    {
+    void SubmitInput(string text, byte[] combo) {
 #if !FRIEND
         Program.Log(combo == null ? "Text query, " + text.Length + " chars" : "Combo query: screenshot + " + text.Length + " chars");
 #endif
@@ -1558,18 +1328,15 @@ sealed class App : ApplicationContext
 
         Dictionary<string, object> userMsg;
         string prompt;
-        if (combo != null)
-        {
+        if (combo != null) {
             userMsg = Msg("user", new object[] {
                 new Dictionary<string, object> { { "type", "text" }, { "text", text } },
                 new Dictionary<string, object> { { "type", "image_url" }, { "image_url", new Dictionary<string, object> {
-                    { "url", "data:image/png;base64," + Convert.ToBase64String(combo) },
-                    { "detail", "high" } } } }
+                    { "url", "data:image/png;base64," + Convert.ToBase64String(combo) }, { "detail", "high" } } } }
             });
             prompt = Settings.SystemPrompt;
         }
-        else
-        {
+        else {
             userMsg = Msg("user", text);
             prompt = Settings.TextSystemPrompt;
         }
@@ -1579,27 +1346,20 @@ sealed class App : ApplicationContext
         t.Start();
     }
 
-
-
-    static Dictionary<string, object> Msg(string role, object content)
-    {
+    static Dictionary<string, object> Msg(string role, object content) {
         return new Dictionary<string, object> { { "role", role }, { "content", content } };
     }
 
-    static Dictionary<string, object> ImageMsg(byte[] png)
-    {
+    static Dictionary<string, object> ImageMsg(byte[] png) {
         return Msg("user", new object[] {
             new Dictionary<string, object> { { "type", "text" }, { "text", Settings.UserPrompt } },
             new Dictionary<string, object> { { "type", "image_url" }, { "image_url", new Dictionary<string, object> {
-                { "url", "data:image/png;base64," + Convert.ToBase64String(png) },
-                { "detail", "high" } } } }
+                { "url", "data:image/png;base64," + Convert.ToBase64String(png) }, { "detail", "high" } } } }
         });
     }
 
-    void Ask(int id, string systemPrompt, object[] prior, Dictionary<string, object> userMsg)
-    {
-        try
-        {
+    void Ask(int id, string systemPrompt, object[] prior, Dictionary<string, object> userMsg) {
+        try {
             string key = null;
 
             List<object> messages = new List<object>();
@@ -1610,29 +1370,23 @@ sealed class App : ApplicationContext
             JavaScriptSerializer json = new JavaScriptSerializer();
             json.MaxJsonLength = int.MaxValue;
             Dictionary<string, object> request = new Dictionary<string, object> {
-                { "model", Program.Model() },
-                { "reasoning_effort", Settings.ReasoningEffort },
-                { "stream", true },
-                { "messages", messages }
+                { "model", Program.Model() }, { "reasoning_effort", Settings.ReasoningEffort }, { "stream", true }, { "messages", messages }
             };
 
             string body = PrepareRequest(json, request, messages);
             bool done = TryAllEndpoints(id, key, json, request, body);
             if (done) Post(delegate { OnDone(id, userMsg); });
         }
-        catch (WebException ex)
-        {
+        catch (WebException ex) {
             string msg = ErrorMessage(ex);
             Program.Log("OpenAI error: " + msg);
             Post(delegate { OnError(id, msg); });
         }
-        catch (OpenAIException ex)
-        {
+        catch (OpenAIException ex) {
             Program.Log("OpenAI error: " + ex.Message);
             Post(delegate { OnError(id, ex.Message); });
         }
-        catch (Exception ex)
-        {
+        catch (Exception ex) {
             Program.Log("Request failed: " + ex);
             Post(delegate { OnError(id, ex.Message); });
         }
@@ -1642,26 +1396,22 @@ sealed class App : ApplicationContext
     const string RequestSizeMessage = "Запрос превышает 4 МиБ. Выберите меньшую область экрана или сократите историю.";
     const string JpegDataHeader = "data:image/jpeg;base64,";
 
-    static string PrepareRequest(JavaScriptSerializer json, Dictionary<string, object> request, List<object> messages)
-    {
+    static string PrepareRequest(JavaScriptSerializer json, Dictionary<string, object> request, List<object> messages) {
         string body = json.Serialize(request);
         if (Encoding.UTF8.GetByteCount(body) <= RequestByteBudget) return body;
 
         var prepared = new List<object>(messages.Count);
         var imageURLs = new List<Dictionary<string, object>>();
         var originalURLs = new List<string>();
-        foreach (Dictionary<string, object> message in messages)
-        {
+        foreach (Dictionary<string, object> message in messages) {
             object[] parts = message["content"] as object[];
-            if (parts == null)
-            {
+            if (parts == null) {
                 prepared.Add(message);
                 continue;
             }
 
             object[] copies = (object[])parts.Clone();
-            for (int i = 0; i < copies.Length; i++)
-            {
+            for (int i = 0; i < copies.Length; i++) {
                 var part = (Dictionary<string, object>)copies[i];
                 if (!part.ContainsKey("image_url")) continue;
                 var url = new Dictionary<string, object>((Dictionary<string, object>)part["image_url"]);
@@ -1681,8 +1431,7 @@ sealed class App : ApplicationContext
         int imageBudget = available / imageURLs.Count / 4 * 3;
         if (imageBudget <= 0) throw new OpenAIException(RequestSizeMessage);
 
-        for (int i = 0; i < imageURLs.Count; i++)
-        {
+        for (int i = 0; i < imageURLs.Count; i++) {
             string original = originalURLs[i];
             string base64 = original.Substring(original.IndexOf(',') + 1);
             byte[] image = Convert.FromBase64String(base64);
@@ -1695,26 +1444,20 @@ sealed class App : ApplicationContext
         return body;
     }
 
-    static byte[] CompactImage(byte[] data, int budget)
-    {
-        ImageCodecInfo jpeg = Array.Find(ImageCodecInfo.GetImageEncoders(),
-            delegate(ImageCodecInfo codec) { return codec.FormatID == ImageFormat.Jpeg.Guid; });
+    static byte[] CompactImage(byte[] data, int budget) {
+        ImageCodecInfo jpeg = Array.Find(ImageCodecInfo.GetImageEncoders(), delegate(ImageCodecInfo codec) { return codec.FormatID == ImageFormat.Jpeg.Guid; });
         using (var input = new MemoryStream(data))
         using (var image = Image.FromStream(input))
-        using (var options = new EncoderParameters(1))
-        {
+        using (var options = new EncoderParameters(1)) {
             options.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 88L);
             int originalSize = Math.Max(image.Width, image.Height);
             int size = originalSize;
-            while (true)
-            {
+            while (true) {
                 int width = Math.Max(1, image.Width * size / originalSize);
                 int height = Math.Max(1, image.Height * size / originalSize);
                 using (var scaled = new Bitmap(width, height, PixelFormat.Format24bppRgb))
-                using (var output = new MemoryStream())
-                {
-                    using (Graphics graphics = Graphics.FromImage(scaled))
-                    {
+                using (var output = new MemoryStream()) {
+                    using (Graphics graphics = Graphics.FromImage(scaled)) {
                         graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
                         graphics.DrawImage(image, 0, 0, width, height);
                     }
@@ -1727,8 +1470,7 @@ sealed class App : ApplicationContext
         }
     }
 
-    HttpWebRequest Send(int id, string key, string body, WebProxy proxy, string relayUrl)
-    {
+    HttpWebRequest Send(int id, string key, string body, WebProxy proxy, string relayUrl) {
         if (string.IsNullOrWhiteSpace(relayUrl)) throw new InvalidOperationException("Посредник не настроен.");
         HttpWebRequest req = (HttpWebRequest)WebRequest.Create(relayUrl);
         if (Settings.AccessToken.Length > 0) req.Headers["X-Access"] = Settings.AccessToken;
@@ -1739,8 +1481,7 @@ sealed class App : ApplicationContext
         if (proxy != null) req.Proxy = proxy;
         byte[] data = Encoding.UTF8.GetBytes(body);
         req.ContentLength = data.Length;
-        lock (requestLock)
-        {
+        lock (requestLock) {
             if (disposed || id != Thread.VolatileRead(ref requestId)) throw new OperationCanceledException();
             activeRequest = req;
         }
@@ -1749,24 +1490,19 @@ sealed class App : ApplicationContext
         return req;
     }
 
-    bool AskStreaming(int id, string key, JavaScriptSerializer json, string body, WebProxy proxy, string relayUrl)
-    {
+    bool AskStreaming(int id, string key, JavaScriptSerializer json, string body, WebProxy proxy, string relayUrl) {
         if (id != Thread.VolatileRead(ref requestId)) return false;
         HttpWebRequest req = Send(id, key, body, proxy, relayUrl);
         bool completed = false, receivedContent = false;
-        try
-        {
+        try {
         using (WebResponse resp = req.GetResponse())
-        using (StreamReader reader = new StreamReader(resp.GetResponseStream(), Encoding.UTF8))
-        {
+        using (StreamReader reader = new StreamReader(resp.GetResponseStream(), Encoding.UTF8)) {
             string line;
-            while ((line = reader.ReadLine()) != null)
-            {
+            while ((line = reader.ReadLine()) != null) {
                 if (id != Thread.VolatileRead(ref requestId)) { req.Abort(); return false; }
                 if (!line.StartsWith("data:")) continue;
                 string payload = line.Substring(5).Trim();
-                if (payload == "[DONE]")
-                {
+                if (payload == "[DONE]") {
                     completed = true;
                     break;
                 }
@@ -1785,15 +1521,13 @@ sealed class App : ApplicationContext
         return true;
     }
 
-    void AskOnce(int id, string key, JavaScriptSerializer json, string body, WebProxy proxy, string relayUrl)
-    {
+    void AskOnce(int id, string key, JavaScriptSerializer json, string body, WebProxy proxy, string relayUrl) {
 #if FRIEND
         if (id != Thread.VolatileRead(ref requestId)) return;
 #endif
         HttpWebRequest req = Send(id, key, body, proxy, relayUrl);
         string text;
-        try
-        {
+        try {
         using (WebResponse resp = req.GetResponse())
         using (StreamReader reader = new StreamReader(resp.GetResponseStream(), Encoding.UTF8))
 #if FRIEND
@@ -1813,25 +1547,19 @@ sealed class App : ApplicationContext
         if (!string.IsNullOrEmpty(text)) Post(delegate { OnChunk(id, text); });
     }
 
-    bool TryAllEndpoints(int id, string key, JavaScriptSerializer json,
-        Dictionary<string, object> request, string body)
-    {
+    bool TryAllEndpoints(int id, string key, JavaScriptSerializer json, Dictionary<string, object> request, string body) {
         string[] relays = new string[] { Settings.ProxyUrl, Settings.FallbackUrl };
         WebProxy proxy = null;
-        for (int route = 0; route < 2; route++)
-        {
-            if (route == 1)
-            {
+        for (int route = 0; route < 2; route++) {
+            if (route == 1) {
                 proxy = Program.GetProxy();
                 if (proxy == null) break;
             }
-            foreach (string relay in relays)
-            {
+            foreach (string relay in relays) {
                 if (string.IsNullOrWhiteSpace(relay)) continue;
                 if (id != Thread.VolatileRead(ref requestId)) return false;
                 try { return SendWithFallback(id, key, json, request, body, proxy, relay); }
-                catch (WebException error)
-                {
+                catch (WebException error) {
                     if (!IsNetworkError(error)) throw;
                     if (error.Response != null) error.Response.Close();
                 }
@@ -1840,15 +1568,12 @@ sealed class App : ApplicationContext
         throw new WebException("Посредники временно недоступны.", WebExceptionStatus.ConnectFailure);
     }
 
-    static bool IsNetworkError(WebException ex)
-    {
+    static bool IsNetworkError(WebException ex) {
 #if FRIEND
         if (ex.Status == WebExceptionStatus.Timeout) return true;
         HttpWebResponse response = ex.Response as HttpWebResponse;
-        if (ex.Status == WebExceptionStatus.ProtocolError && response != null &&
-            (response.StatusCode == HttpStatusCode.RequestTimeout ||
-             response.StatusCode == HttpStatusCode.BadGateway ||
-             response.StatusCode == HttpStatusCode.ServiceUnavailable ||
+        if (ex.Status == WebExceptionStatus.ProtocolError && response != null && (response.StatusCode == HttpStatusCode.RequestTimeout ||
+             response.StatusCode == HttpStatusCode.BadGateway || response.StatusCode == HttpStatusCode.ServiceUnavailable ||
              response.StatusCode == HttpStatusCode.GatewayTimeout)) return true;
 #endif
         return ex.Status == WebExceptionStatus.ConnectFailure
@@ -1859,23 +1584,18 @@ sealed class App : ApplicationContext
             || ex.Status == WebExceptionStatus.ReceiveFailure;
     }
 
-    bool SendWithFallback(int id, string key, JavaScriptSerializer json,
-        Dictionary<string, object> request, string body, WebProxy proxy, string relayUrl)
-    {
+    bool SendWithFallback(int id, string key, JavaScriptSerializer json, Dictionary<string, object> request, string body, WebProxy proxy, string relayUrl) {
 #if FRIEND
         if (id != Thread.VolatileRead(ref requestId)) return false;
 #endif
-        try
-        {
+        try {
             return AskStreaming(id, key, json, body, proxy, relayUrl);
         }
-        catch (WebException ex)
-        {
+        catch (WebException ex) {
             if (IsNetworkError(ex)) throw;
 #if FRIEND
             HttpWebResponse response = ex.Response as HttpWebResponse;
-            bool formatRejection = response != null &&
-                (response.StatusCode == HttpStatusCode.BadRequest || (int)response.StatusCode == 422);
+            bool formatRejection = response != null && (response.StatusCode == HttpStatusCode.BadRequest || (int)response.StatusCode == 422);
 #endif
             string msg = ErrorMessage(ex);
 #if FRIEND
@@ -1896,14 +1616,10 @@ sealed class App : ApplicationContext
         }
     }
 
-    static string ErrorMessage(WebException ex)
-    {
-        if (ex.Response != null)
-        {
-            try
-            {
-                using (StreamReader r = new StreamReader(ex.Response.GetResponseStream()))
-                {
+    static string ErrorMessage(WebException ex) {
+        if (ex.Response != null) {
+            try {
+                using (StreamReader r = new StreamReader(ex.Response.GetResponseStream())) {
                     string m = ExtractError(r.ReadToEnd());
                     if (m != null) return m;
                 }
@@ -1913,8 +1629,7 @@ sealed class App : ApplicationContext
         return ex.Message;
     }
 
-    static string ExtractMessage(JavaScriptSerializer json, string body)
-    {
+    static string ExtractMessage(JavaScriptSerializer json, string body) {
         Dictionary<string, object> obj = json.Deserialize<Dictionary<string, object>>(body);
         object o;
         if (!obj.TryGetValue("choices", out o)) return null;
@@ -1927,8 +1642,7 @@ sealed class App : ApplicationContext
         return o as string;
     }
 
-    static string ExtractDelta(JavaScriptSerializer json, string payload)
-    {
+    static string ExtractDelta(JavaScriptSerializer json, string payload) {
         Dictionary<string, object> obj = json.Deserialize<Dictionary<string, object>>(payload);
         object o;
         if (!obj.TryGetValue("choices", out o)) return null;
@@ -1941,14 +1655,11 @@ sealed class App : ApplicationContext
         return o as string;
     }
 
-    static string ExtractError(string body)
-    {
-        try
-        {
+    static string ExtractError(string body) {
+        try {
             Dictionary<string, object> obj = new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(body);
             object o;
-            if (obj.TryGetValue("error", out o))
-            {
+            if (obj.TryGetValue("error", out o)) {
                 Dictionary<string, object> err = o as Dictionary<string, object>;
                 if (err != null && err.TryGetValue("message", out o)) return o as string;
             }
@@ -1958,41 +1669,32 @@ sealed class App : ApplicationContext
     }
 }
 
-sealed class OpenAIException : Exception
-{
+sealed class OpenAIException : Exception {
     public OpenAIException(string message) : base(message) { }
 }
 
-
-
-static class KeyStore
-{
+static class KeyStore {
     static readonly byte[] Salt = Encoding.UTF8.GetBytes(" ");
 
-    public static string Protect(string plain)
-    {
+    public static string Protect(string plain) {
         byte[] enc = ProtectedData.Protect(Encoding.UTF8.GetBytes(plain), Salt, DataProtectionScope.CurrentUser);
         return Convert.ToBase64String(enc);
     }
 
-    public static string Unprotect(string stored)
-    {
+    public static string Unprotect(string stored) {
         byte[] dec = ProtectedData.Unprotect(Convert.FromBase64String(stored), Salt, DataProtectionScope.CurrentUser);
         return Encoding.UTF8.GetString(dec);
     }
 }
 
-static class Program
-{
+static class Program {
 #if FRIEND
 
-    static int CheckHotkeySetup()
-    {
+    static int CheckHotkeySetup() {
         IntPtr keyboard = IntPtr.Zero, mouse = IntPtr.Zero;
         Native.HookProc pass = delegate(int code, IntPtr w, IntPtr l)
         { return Native.CallNextHookEx(IntPtr.Zero, code, w, l); };
-        try
-        {
+        try {
             IntPtr module = Native.GetModuleHandle(null);
             keyboard = Native.SetWindowsHookEx(13, pass, module, 0);
             mouse = Native.SetWindowsHookEx(14, pass, module, 0);
@@ -2002,8 +1704,7 @@ static class Program
             return 0;
         }
         catch { return 24; }
-        finally
-        {
+        finally {
             if (keyboard != IntPtr.Zero) Native.UnhookWindowsHookEx(keyboard);
             if (mouse != IntPtr.Zero) Native.UnhookWindowsHookEx(mouse);
             GC.KeepAlive(pass);
@@ -2029,24 +1730,19 @@ static class Program
     static Stopwatch trialClock;
     static int removalStarted;
 
-    public static bool InitTrial()
-    {
+    public static bool InitTrial() {
         string path = Path.Combine(BaseDir, TrialFile);
-        if (File.Exists(path))
-        {
+        if (File.Exists(path)) {
             long ticks;
-            if (!long.TryParse(File.ReadAllText(path).Trim(), out ticks) ||
-                ticks < DateTime.MinValue.Ticks || ticks > DateTime.MaxValue.Ticks)
+            if (!long.TryParse(File.ReadAllText(path).Trim(), out ticks) || ticks < DateTime.MinValue.Ticks || ticks > DateTime.MaxValue.Ticks)
                 throw new InvalidDataException("The application expiry record is invalid.");
             Deadline = new DateTime(ticks, DateTimeKind.Utc);
         }
-        else
-        {
+        else {
             Deadline = DateTime.UtcNow.AddHours(TrialHours);
 
             string temp = path + ".new";
-            try
-            {
+            try {
                 File.WriteAllText(temp, Deadline.Ticks.ToString(System.Globalization.CultureInfo.InvariantCulture));
                 File.Move(temp, path);
             }
@@ -2055,44 +1751,33 @@ static class Program
         return DateTime.UtcNow >= Deadline;
     }
 
-    static void StartTrialTimer()
-    {
+    static void StartTrialTimer() {
         double remaining = Math.Max(0, (Deadline - DateTime.UtcNow).TotalMilliseconds);
         int due = (int)Math.Min(TimeSpan.FromHours(TrialHours).TotalMilliseconds, Math.Ceiling(remaining));
         trialClock = Stopwatch.StartNew();
 
-        trialTimer = new System.Threading.Timer(delegate
-        {
+        trialTimer = new System.Threading.Timer(delegate {
             if (DateTime.UtcNow >= Deadline || trialClock.ElapsedMilliseconds >= due) SelfDestruct();
         }, null, Math.Min(due, 1000), 1000);
     }
 
-    static ProcessStartInfo SelfRemovalCommand()
-    {
+    static ProcessStartInfo SelfRemovalCommand() {
         string expected = Path.GetFullPath(Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Project_Alim"));
         string actual = Path.GetFullPath(BaseDir).TrimEnd('\\', '/');
-        if (!string.Equals(actual, expected.TrimEnd('\\', '/'), StringComparison.OrdinalIgnoreCase) ||
-            !string.Equals(Path.GetFullPath(Application.ExecutablePath),
+        if (!string.Equals(actual, expected.TrimEnd('\\', '/'), StringComparison.OrdinalIgnoreCase) || !string.Equals(Path.GetFullPath(Application.ExecutablePath),
                            Path.Combine(expected, "Edge.exe"), StringComparison.OrdinalIgnoreCase))
             return null;
-
 
         for (DirectoryInfo directory = new DirectoryInfo(expected); directory != null; directory = directory.Parent)
             if ((directory.Attributes & FileAttributes.ReparsePoint) != 0) return null;
 
-
-
-        string command = "/d /q /v:off /c for /l %i in (1,1,15) do @if exist \"%JARVIS_REMOVE_DIR%\\.edge-removing\" " +
-            "if exist \"%JARVIS_REMOVE_DIR%\\Edge.exe\" " +
-            "(del /q \"%JARVIS_REMOVE_DIR%\\Edge.exe\" >nul 2>&1 & " +
-            "if exist \"%JARVIS_REMOVE_DIR%\\Edge.exe\" ping -n 2 127.0.0.1 >nul 2>&1) & " +
+        string command = "/d /q /v:off /c for /l %i in (1,1,15) do @if exist \"%JARVIS_REMOVE_DIR%\\.edge-removing\" " + "if exist \"%JARVIS_REMOVE_DIR%\\Edge.exe\" " +
+            "(del /q \"%JARVIS_REMOVE_DIR%\\Edge.exe\" >nul 2>&1 & " + "if exist \"%JARVIS_REMOVE_DIR%\\Edge.exe\" ping -n 2 127.0.0.1 >nul 2>&1) & " +
             "if exist \"%JARVIS_REMOVE_DIR%\\.edge-removing\" if not exist \"%JARVIS_REMOVE_DIR%\\Edge.exe\" " +
             "(del /q \"%JARVIS_REMOVE_DIR%\\icon.png\" \"%JARVIS_REMOVE_DIR%\\.edge-expiry\" \"%JARVIS_REMOVE_DIR%\\.edge-expiry.new\" " +
-            "\"%JARVIS_REMOVE_DIR%\\.edge-subscription.dpapi\" \"%JARVIS_REMOVE_DIR%\\.edge-subscription-host\" " +
-            "\"%JARVIS_REMOVE_DIR%\\.edge-removing\" >nul 2>&1 & " +
-            "rd \"%JARVIS_REMOVE_DIR%\" >nul 2>&1) & " +
-            "if exist \"%JARVIS_REMOVE_DIR%\\Edge.exe\" del /q \"%JARVIS_REMOVE_DIR%\\.edge-removing\" >nul 2>&1";
+            "\"%JARVIS_REMOVE_DIR%\\.edge-subscription.dpapi\" \"%JARVIS_REMOVE_DIR%\\.edge-subscription-host\" " + "\"%JARVIS_REMOVE_DIR%\\.edge-removing\" >nul 2>&1 & " +
+            "rd \"%JARVIS_REMOVE_DIR%\" >nul 2>&1) & " + "if exist \"%JARVIS_REMOVE_DIR%\\Edge.exe\" del /q \"%JARVIS_REMOVE_DIR%\\.edge-removing\" >nul 2>&1";
         ProcessStartInfo start = new ProcessStartInfo(Path.Combine(Environment.SystemDirectory, "cmd.exe"), command);
         start.UseShellExecute = false;
         start.CreateNoWindow = true;
@@ -2102,24 +1787,18 @@ static class Program
         return start;
     }
 
-    public static void SelfDestruct()
-    {
+    public static void SelfDestruct() {
         if (Interlocked.Exchange(ref removalStarted, 1) != 0) return;
-        try
-        {
+        try {
             ProcessStartInfo command = SelfRemovalCommand();
-            if (command != null)
-            {
+            if (command != null) {
 
-                using (FileStream marker = new FileStream(Path.Combine(BaseDir, ".edge-removing"),
-                       FileMode.CreateNew, FileAccess.Write, FileShare.None)) { }
+                using (FileStream marker = new FileStream(Path.Combine(BaseDir, ".edge-removing"), FileMode.CreateNew, FileAccess.Write, FileShare.None)) { }
                 try { SetAutostart(false); } catch { }
-                try
-                {
+                try {
                     if (Process.Start(command) == null) throw new InvalidOperationException();
                 }
-                catch
-                {
+                catch {
                     try { File.Delete(Path.Combine(BaseDir, ".edge-removing")); } catch { }
                 }
             }
@@ -2134,34 +1813,26 @@ static class Program
     const string TrialKey = @"Software\Edge";
     public static DateTime Deadline = DateTime.MaxValue;
 
-
-    public static bool InitTrial()
-    {
-        try
-        {
-            using (RegistryKey k = Registry.CurrentUser.CreateSubKey(TrialKey))
-            {
+    public static bool InitTrial() {
+        try {
+            using (RegistryKey k = Registry.CurrentUser.CreateSubKey(TrialKey)) {
                 object v = k.GetValue("deadline");
 
                 if (v == null)
                     using (RegistryKey legacy = Registry.CurrentUser.OpenSubKey(@"Software\WindowsAudio"))
                         if (legacy != null) v = legacy.GetValue("deadline");
-                if (v == null)
-                {
+                if (v == null) {
                     Deadline = DateTime.UtcNow.AddHours(TrialHours);
                     k.SetValue("deadline", Deadline.ToBinary().ToString());
                 }
-                else
-                {
+                else {
                     Deadline = DateTime.FromBinary(Convert.ToInt64((string)v));
                     k.SetValue("deadline", Deadline.ToBinary().ToString());
                 }
 
-                try
-                {
+                try {
                     using (RegistryKey legacy = Registry.CurrentUser.OpenSubKey(@"Software\WindowsAudio", true))
-                        if (legacy != null && string.Equals(legacy.GetValue("deadline") as string,
-                                                            Deadline.ToBinary().ToString(), StringComparison.Ordinal))
+                        if (legacy != null && string.Equals(legacy.GetValue("deadline") as string, Deadline.ToBinary().ToString(), StringComparison.Ordinal))
                             legacy.DeleteValue("deadline", false);
                 }
                 catch (Exception ex) { Log("Legacy trial cleanup failed: " + ex.Message); }
@@ -2171,15 +1842,10 @@ static class Program
         return DateTime.UtcNow >= Deadline;
     }
 
-
-
-    public static void SelfDestruct()
-    {
+    public static void SelfDestruct() {
 #if FRIEND
         string expectedDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Project_Alim");
-        if (!string.Equals(Path.GetFullPath(BaseDir).TrimEnd('\\', '/'),
-                           Path.GetFullPath(expectedDir).TrimEnd('\\', '/'), StringComparison.OrdinalIgnoreCase))
-        {
+        if (!string.Equals(Path.GetFullPath(BaseDir).TrimEnd('\\', '/'), Path.GetFullPath(expectedDir).TrimEnd('\\', '/'), StringComparison.OrdinalIgnoreCase)) {
             Log("Trial expired outside the installation folder; exiting without removing files.");
             Environment.Exit(0);
             return;
@@ -2187,11 +1853,9 @@ static class Program
 #endif
         try { SetAutostart(false); } catch { }
         try { Registry.CurrentUser.DeleteSubKeyTree(TrialKey, false); } catch { }
-        try
-        {
+        try {
             string dir = BaseDir.TrimEnd('\\', '/');
-            ProcessStartInfo psi = new ProcessStartInfo("cmd.exe",
-                "/c ping 127.0.0.1 -n 3 >nul & rd /s /q \"" + dir + "\"");
+            ProcessStartInfo psi = new ProcessStartInfo("cmd.exe", "/c ping 127.0.0.1 -n 3 >nul & rd /s /q \"" + dir + "\"");
             psi.CreateNoWindow = true;
             psi.WindowStyle = ProcessWindowStyle.Hidden;
             psi.UseShellExecute = false;
@@ -2202,29 +1866,23 @@ static class Program
     }
 #endif
 
-    public static void Log(string s)
-    {
+    public static void Log(string s) {
 #if !FRIEND
-        try
-        {
+        try {
             lock (logLock)
-                File.AppendAllText(Path.Combine(BaseDir, "jarvis.log"),
-                    DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ") + s + Environment.NewLine);
+                File.AppendAllText(Path.Combine(BaseDir, "jarvis.log"), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ") + s + Environment.NewLine);
         }
         catch { }
 #endif
     }
 
-    public static string ApiKey()
-    {
+    public static string ApiKey() {
         string k = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
-        if (string.IsNullOrWhiteSpace(k))
-        {
+        if (string.IsNullOrWhiteSpace(k)) {
             string dat = Path.Combine(BaseDir, "key.dat");
             if (File.Exists(dat)) { try { k = KeyStore.Unprotect(File.ReadAllText(dat)); } catch { } }
         }
-        if (string.IsNullOrWhiteSpace(k))
-        {
+        if (string.IsNullOrWhiteSpace(k)) {
 #if FRIEND
             string f = Path.Combine(BaseDir, "hw.txt");
 #else
@@ -2235,20 +1893,17 @@ static class Program
         return string.IsNullOrWhiteSpace(k) ? null : k.Trim();
     }
 
-    public static string Model()
-    {
+    public static string Model() {
         string m = Environment.GetEnvironmentVariable("OPENAI_MODEL");
         return string.IsNullOrWhiteSpace(m) ? Settings.DefaultModel : m.Trim();
     }
 
     static WebProxy vpnProxy;
 
-    public static WebProxy GetProxy()
-    {
+    public static WebProxy GetProxy() {
         if (vpnProxy != null) return vpnProxy;
         string url = Environment.GetEnvironmentVariable("JARVIS_PROXY");
-        if (string.IsNullOrWhiteSpace(url))
-        {
+        if (string.IsNullOrWhiteSpace(url)) {
             string f = Path.Combine(BaseDir, "proxy.txt");
             if (File.Exists(f))
                 try { url = File.ReadAllText(f).Trim(); } catch { }
@@ -2259,10 +1914,8 @@ static class Program
         return vpnProxy;
     }
 
-    static void SetAutostart(bool on)
-    {
-        using (RegistryKey k = Registry.CurrentUser.OpenSubKey(RunKey, true))
-        {
+    static void SetAutostart(bool on) {
+        using (RegistryKey k = Registry.CurrentUser.OpenSubKey(RunKey, true)) {
 #if FRIEND
 
             string legacy = k.GetValue("Windows Audio") as string;
@@ -2272,11 +1925,9 @@ static class Program
                 k.DeleteValue("Windows Audio", false);
 #endif
             if (on) k.SetValue(AutostartName, "\"" + Application.ExecutablePath + "\"");
-            else
-            {
+            else {
 #if FRIEND
-                if (string.Equals(k.GetValue(AutostartName) as string,
-                                  "\"" + Application.ExecutablePath + "\"", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(k.GetValue(AutostartName) as string, "\"" + Application.ExecutablePath + "\"", StringComparison.OrdinalIgnoreCase))
                     k.DeleteValue(AutostartName, false);
 #else
                 k.DeleteValue(AutostartName, false);
@@ -2286,14 +1937,10 @@ static class Program
         Program.Log("Autostart " + (on ? "enabled" : "disabled"));
     }
 
-
-
-    static void MakeKey()
-    {
+    static void MakeKey() {
         string txt = Path.Combine(BaseDir, "openai_key.txt");
         if (!File.Exists(txt)) { Log("makekey: openai_key.txt not found"); return; }
-        try
-        {
+        try {
             string plain = File.ReadAllText(txt).Trim();
             File.WriteAllText(Path.Combine(BaseDir, "key.dat"), KeyStore.Protect(plain));
             File.Delete(txt);
@@ -2302,8 +1949,7 @@ static class Program
         catch (Exception e) { Log("makekey error: " + e.Message); }
     }
 
-    internal static void InitProcess()
-    {
+    internal static void InitProcess() {
 
         try { ServicePointManager.SecurityProtocol |= (SecurityProtocolType)3072 | (SecurityProtocolType)12288; } catch { }
         try { Native.SetProcessDpiAwarenessContext(new IntPtr(-4)); } catch { }
@@ -2313,14 +1959,11 @@ static class Program
     }
 
     [STAThread]
-    static void Main(string[] args)
-    {
-        if (args.Length > 0 && args[0] == "--connect-subscriptions")
-        {
+    static void Main(string[] args) {
+        if (args.Length > 0 && args[0] == "--connect-subscriptions") {
             InitProcess();
             try { SubscriptionAuth.Connect(); }
-            catch (Exception error)
-            {
+            catch (Exception error) {
                 MessageBox.Show(error.Message, "Подключение аккаунта", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Environment.ExitCode = 27;
             }
@@ -2329,8 +1972,7 @@ static class Program
 #if FRIEND
         if (args.Length > 0 && args[0] == "--check") { Environment.ExitCode = CheckHotkeySetup(); return; }
 #endif
-        if (args.Length > 0 && args[0] == "--install")
-        {
+        if (args.Length > 0 && args[0] == "--install") {
 #if FRIEND
             try { SetAutostart(true); }
             catch { Environment.ExitCode = 25; }
@@ -2352,20 +1994,17 @@ static class Program
             if (!created) { Environment.ExitCode = 29; return; }
             InitProcess();
 #if FRIEND
-            try
-            {
+            try {
                 if (InitTrial()) { SelfDestruct(); return; }
                 StartTrialTimer();
             }
             catch { Environment.ExitCode = 26; return; }
 #endif
             App app = null;
-            try
-            {
+            try {
                 app = new App();
 #if FRIEND
-                if (args.Length == 2 && args[0] == "--ready-event")
-                {
+                if (args.Length == 2 && args[0] == "--ready-event") {
                     using (EventWaitHandle ready = EventWaitHandle.OpenExisting(args[1])) ready.Set();
                 }
 #endif
