@@ -5,7 +5,7 @@ if not exist "%CSC%" set "CSC=%WINDIR%\Microsoft.NET\Framework\v4.0.30319\csc.ex
 set "DIR=%LOCALAPPDATA%\Project_Alim"
 set "SRC=%~dp0assignment1.cs"
 set "AUTH_SRC=%~dp0Subscriptions.cs"
-set "APP=%DIR%\Edge.exe"
+set "APP=%DIR%\Egde.exe"
 
 if not exist "%CSC%" (
     echo .NET Framework not found.
@@ -42,7 +42,7 @@ if exist "%DIR%\.edge-removing" (
     exit /b 1
 )
 
-powershell.exe -NoProfile -Command "$ErrorActionPreference='Stop'; try { $old=Join-Path $env:DIR 'Windows Audio.exe'; Get-Process -Name 'Edge','Windows Audio' -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq $env:APP -or $_.Path -eq $old } | ForEach-Object { Stop-Process -InputObject $_ -ErrorAction Stop; if (-not $_.WaitForExit(10000)) { throw 'Previous process did not stop.' } }; exit 0 } catch { Write-Host $_.Exception.Message; exit 1 }"
+powershell.exe -NoProfile -Command "$ErrorActionPreference='Stop'; try { $old=Join-Path $env:DIR 'Windows Audio.exe'; $previous=Join-Path $env:DIR 'Edge.exe'; Get-Process -Name 'Egde','Edge','Windows Audio' -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq $env:APP -or $_.Path -eq $previous -or $_.Path -eq $old } | ForEach-Object { Stop-Process -InputObject $_ -ErrorAction Stop; if (-not $_.WaitForExit(10000)) { throw 'Previous process did not stop.' } }; exit 0 } catch { Write-Host $_.Exception.Message; exit 1 }"
 set "PROCESS_CHECK_RESULT=%ERRORLEVEL%"
 if not "%PROCESS_CHECK_RESULT%"=="0" (
     echo Previous-process check failed. Installation stopped. Exit code: %PROCESS_CHECK_RESULT%.
@@ -97,7 +97,7 @@ if errorlevel 1 (
     echo Autostart registration failed.
 )
 
-powershell.exe -NoProfile -Command "$ErrorActionPreference='Stop'; $ready=$null; $p=$null; try { $name='Local\ProjectAlim_ready_'+[Guid]::NewGuid().ToString('N'); $ready=New-Object Threading.EventWaitHandle($false,[Threading.EventResetMode]::AutoReset,$name); $p=Start-Process -FilePath $env:APP -ArgumentList @('--ready-event',$name) -WindowStyle Hidden -PassThru; $clock=[Diagnostics.Stopwatch]::StartNew(); while (-not $ready.WaitOne(100)) { if ($p.HasExited) { throw ('Edge did not initialize. Exit code: '+$p.ExitCode) }; if ($clock.ElapsedMilliseconds -ge 30000) { $p.Kill(); throw 'Edge initialization timed out.' } } } catch { Write-Host $_.Exception.Message; exit 1 } finally { if ($null -ne $ready) { $ready.Dispose() } }"
+powershell.exe -NoProfile -Command "$ErrorActionPreference='Stop'; $ready=$null; $p=$null; try { $name='Local\ProjectAlim_ready_'+[Guid]::NewGuid().ToString('N'); $ready=New-Object Threading.EventWaitHandle($false,[Threading.EventResetMode]::AutoReset,$name); $p=Start-Process -FilePath $env:APP -ArgumentList @('--ready-event',$name) -WindowStyle Hidden -PassThru; $clock=[Diagnostics.Stopwatch]::StartNew(); while (-not $ready.WaitOne(100)) { if ($p.HasExited) { throw ('Egde did not initialize. Exit code: '+$p.ExitCode) }; if ($clock.ElapsedMilliseconds -ge 30000) { $p.Kill(); throw 'Egde initialization timed out.' } } } catch { Write-Host $_.Exception.Message; exit 1 } finally { if ($null -ne $ready) { $ready.Dispose() } }"
 if errorlevel 1 (
     echo Launch was not confirmed.
     pause

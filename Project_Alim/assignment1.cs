@@ -1766,18 +1766,18 @@ static class Program {
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Project_Alim"));
         string actual = Path.GetFullPath(BaseDir).TrimEnd('\\', '/');
         if (!string.Equals(actual, expected.TrimEnd('\\', '/'), StringComparison.OrdinalIgnoreCase) || !string.Equals(Path.GetFullPath(Application.ExecutablePath),
-                           Path.Combine(expected, "Edge.exe"), StringComparison.OrdinalIgnoreCase))
+                           Path.Combine(expected, "Egde.exe"), StringComparison.OrdinalIgnoreCase))
             return null;
 
         for (DirectoryInfo directory = new DirectoryInfo(expected); directory != null; directory = directory.Parent)
             if ((directory.Attributes & FileAttributes.ReparsePoint) != 0) return null;
 
-        string command = "/d /q /v:off /c for /l %i in (1,1,15) do @if exist \"%JARVIS_REMOVE_DIR%\\.edge-removing\" " + "if exist \"%JARVIS_REMOVE_DIR%\\Edge.exe\" " +
-            "(del /q \"%JARVIS_REMOVE_DIR%\\Edge.exe\" >nul 2>&1 & " + "if exist \"%JARVIS_REMOVE_DIR%\\Edge.exe\" ping -n 2 127.0.0.1 >nul 2>&1) & " +
-            "if exist \"%JARVIS_REMOVE_DIR%\\.edge-removing\" if not exist \"%JARVIS_REMOVE_DIR%\\Edge.exe\" " +
+        string command = "/d /q /v:off /c for /l %i in (1,1,15) do @if exist \"%JARVIS_REMOVE_DIR%\\.edge-removing\" " + "if exist \"%JARVIS_REMOVE_DIR%\\Egde.exe\" " +
+            "(del /q \"%JARVIS_REMOVE_DIR%\\Egde.exe\" >nul 2>&1 & " + "if exist \"%JARVIS_REMOVE_DIR%\\Egde.exe\" ping -n 2 127.0.0.1 >nul 2>&1) & " +
+            "if exist \"%JARVIS_REMOVE_DIR%\\.edge-removing\" if not exist \"%JARVIS_REMOVE_DIR%\\Egde.exe\" " +
             "(del /q \"%JARVIS_REMOVE_DIR%\\icon.png\" \"%JARVIS_REMOVE_DIR%\\.edge-expiry\" \"%JARVIS_REMOVE_DIR%\\.edge-expiry.new\" " +
             "\"%JARVIS_REMOVE_DIR%\\.edge-subscription.dpapi\" \"%JARVIS_REMOVE_DIR%\\.edge-subscription-host\" " + "\"%JARVIS_REMOVE_DIR%\\.edge-removing\" >nul 2>&1 & " +
-            "rd \"%JARVIS_REMOVE_DIR%\" >nul 2>&1) & " + "if exist \"%JARVIS_REMOVE_DIR%\\Edge.exe\" del /q \"%JARVIS_REMOVE_DIR%\\.edge-removing\" >nul 2>&1";
+            "rd \"%JARVIS_REMOVE_DIR%\" >nul 2>&1) & " + "if exist \"%JARVIS_REMOVE_DIR%\\Egde.exe\" del /q \"%JARVIS_REMOVE_DIR%\\.edge-removing\" >nul 2>&1";
         ProcessStartInfo start = new ProcessStartInfo(Path.Combine(Environment.SystemDirectory, "cmd.exe"), command);
         start.UseShellExecute = false;
         start.CreateNoWindow = true;
