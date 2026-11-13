@@ -3,7 +3,7 @@ chcp 65001 >nul
 set "CSC=%WINDIR%\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
 if not exist "%CSC%" set "CSC=%WINDIR%\Microsoft.NET\Framework\v4.0.30319\csc.exe"
 set "DIR=%LOCALAPPDATA%\Project_Alim"
-set "SRC=%~dp0Jarvis.cs"
+set "SRC=%~dp0assignment1.cs"
 set "AUTH_SRC=%~dp0Subscriptions.cs"
 set "APP=%DIR%\Edge.exe"
 
