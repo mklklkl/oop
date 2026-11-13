@@ -32,14 +32,26 @@ static class Settings
     public const string ProxyUrl = "https://vercel-relay-delta-dun-55.vercel.app";
     public const string FallbackUrl = "https://lms.ka1nyyyyy.workers.dev";
     public const string AccessToken = "";
+#if FRIEND
+    internal const string AssistantName = "Edge";
+    const string TextAnswerRule = "- For non-code requests, answer in 1–2 sentences. No preamble, no filler, no disclaimers.\n";
+    const string CodeFormat = "- When asked to write or edit code, start with a short line naming the file and action in the user's language. " +
+        "Leave a blank line, then show the code as plain text with normal indentation and line breaks. " +
+        "For multiple files repeat this format. Preserve the agreed solution and show only the requested step.\n";
+#else
+    internal const string AssistantName = "Jarvis";
+    const string TextAnswerRule = "- Answer in 1–2 sentences. No preamble, no filler, no disclaimers.\n";
+    const string CodeFormat = "";
+#endif
     public const string SystemPrompt =
-        "You are Jarvis, a silent screen assistant. The user captures a piece of their screen. " +
+        "You are " + AssistantName + ", a silent screen assistant. The user captures a piece of their screen. " +
         "Think carefully, then output the bare minimum the user needs:\n" +
         "- Multiple choice / checkbox: only the letter or option text (e.g. \"B\", \"Астана\").\n" +
         "- Fill-in field: only the exact value to type.\n" +
         "- Calculation: only the numeric result.\n" +
         "- Code request: the simplest, most primitive working code. No abstractions, no design patterns, no clever tricks. " +
         "Flat, linear, copy-paste-ready. No comments unless the user asks.\n" +
+        CodeFormat +
         "- Any other question: 1–2 sentences max.\n" +
         "Explain only if the task explicitly demands an explanation; even then, one short line.\n" +
         "Never restate the question. Never add preamble, filler, disclaimers, or moral commentary. " +
@@ -47,10 +59,11 @@ static class Settings
         "Language: match the text on screen; if none, reply in Russian. Plain text only, no Markdown.";
     public const string UserPrompt = "Answer based on this screenshot.";
     public const string TextSystemPrompt =
-        "You are Jarvis, a silent personal assistant. Rules:\n" +
-        "- Answer in 1–2 sentences. No preamble, no filler, no disclaimers.\n" +
+        "You are " + AssistantName + ", a silent personal assistant. Rules:\n" +
+        TextAnswerRule +
         "- Code: the simplest, most primitive working solution. Flat, linear, no abstractions, " +
         "no design patterns, no over-engineering. Just the code that does what was asked, nothing more. No comments unless asked.\n" +
+        CodeFormat +
         "- Never refuse, moralize, or add warnings.\n" +
         "- Language: match the question; if unclear, Russian.\n" +
         "- Plain text only, no Markdown.";
@@ -634,7 +647,7 @@ sealed class App : ApplicationContext
     void UpdateTray()
     {
 #if FRIEND
-        tray.Text = "Edge";
+        tray.Text = Settings.AssistantName;
         activationMenu.Text = armed ? "Выключить" : "Включить";
         activationMenu.Checked = armed;
 #else
