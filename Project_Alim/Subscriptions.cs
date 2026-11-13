@@ -276,7 +276,7 @@ static class SubscriptionAuth
                         { "redirect_uri", redirect }, { "scope", Scope }, { "resource", Resource },
                         { "state", state }, { "nonce", nonce }, { "code_challenge_method", "S256" }, { "code_challenge", challenge }
                     };
-                    if (old == null) parameters.Add("agent_name_hint", "Jarvis");
+                    if (old == null) parameters.Add("agent_name_hint", Settings.AssistantName);
                     else if (!string.IsNullOrEmpty(Text(old, "email"))) parameters.Add("login_hint", Text(old, "email"));
                     Process.Start(new ProcessStartInfo(Issuer + "/api/accounts/authorize?" + Encode(parameters)) { UseShellExecute = true });
                     DateTime deadline = DateTime.UtcNow.AddMinutes(5);
